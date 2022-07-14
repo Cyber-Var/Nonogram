@@ -1,6 +1,7 @@
 import logging
 
 from ui.game_window import GameWindow
+from view.menu_view import Menu
 
 
 class Start:
@@ -15,4 +16,3 @@ class Start:
 
     def start(self):
         window = GameWindow()
-
