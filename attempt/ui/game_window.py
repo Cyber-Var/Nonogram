@@ -3,7 +3,7 @@ import pygame
 import sys
 from pygame.locals import *
 
-from view.menu_view import Menu
+from attempt.view.menu_view import Menu
 
 
 def update():

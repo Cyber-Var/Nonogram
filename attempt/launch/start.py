@@ -1,7 +1,6 @@
 import logging
 
-from ui.game_window import GameWindow
-from view.menu_view import Menu
+from attempt.ui.game_window import GameWindow
 
 
 class Start:

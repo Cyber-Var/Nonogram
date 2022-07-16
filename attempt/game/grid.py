@@ -12,13 +12,10 @@ class Grid:
     logging.root.setLevel(logging.NOTSET)
     logger = logging.getLogger("Grid.class")
 
-    def __init__(self, width, height):
+    def __init__(self, width):
         self.logger.info("Grid class created.")
         self.width = width
-        self.height = height
         self.draw_grid()
 
     def draw_grid(self):
-
-
-
+        for i in self.width * self.width:
