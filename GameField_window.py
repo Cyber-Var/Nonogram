@@ -2,46 +2,51 @@ import pygame
 import sys
 from pygame.locals import *
 
-from Game import Game
+from Square import Square
 
 
-class Field(Game):
+class Field:
 
-    pygame.init()
+    pygame.display.init()
 
-    surface = pygame.display.set_mode((600, 600))
+    surface = pygame.Surface((500, 500))
     COLOR_WHITE = (255, 255, 255)
+    COLOR_BLACK = (0, 0, 0)
+
+    squares = [[], [], [], [], [], []]
 
     def __init__(self, difficulty):
         self.difficulty = difficulty
         self.initialise()
         self.draw()
-        self.loop()
 
     def initialise(self):
         self.surface.fill(self.COLOR_WHITE)
-        self.surface.convert()
-        print("i")
 
     def draw(self):
-        x = 0
-        y = 0
-        wh = 600 / self.difficulty
+        wh = 500 / self.difficulty
         for i in range(self.difficulty):
             for j in range(self.difficulty):
-                pygame.draw.rect(self.surface, self.COLOR_WHITE, [x, y, wh, wh])
-                x += wh
-                y += wh
+                '''opacity = 1
+                if self.squares[i][j].is_filled():
+                    opacity = 0'''
+                pygame.draw.rect(self.surface, self.COLOR_BLACK, [j * wh, i * wh, wh, wh], 1)
 
-    def loop(self):
-        while 1:
-            for event in pygame.event.get():
-                if event.type == QUIT:
-                    pygame.quit()
-                    sys.exit()
-            pygame.display.update()
+    def get_surface(self):
+        return self.surface
+
+    def arr(self):
+        for i in range(self.difficulty):
+            for j in range(self.difficulty):
+                self.arr[i][j] = Square(i, j)
+
+    def set_squares(self, arr):
+        for i in range(self.difficulty):
+            for j in range(self.difficulty):
+                if arr[i][j] == 1:
+                    self.squares[i].append(Square(i, j, 1))
+                else:
+                    self.squares[i].append(Square(i, j))
 
 
 field = Field(5)
-
-

@@ -2,8 +2,8 @@
 
 class Square:
 
-    def __init__(self, x, y):
-        self.filled = False
+    def __init__(self, x, y, filled=0):
+        self.filled = filled
         self.x = x
         self.y = y
 
@@ -11,7 +11,7 @@ class Square:
         return self.filled
 
     def fill(self):
-        self.filled = True
+        self.filled = 1
 
     def unfill(self):
-        self.filled = False
+        self.filled = 0
