@@ -12,6 +12,7 @@ class ScoreBoard:
     COLOR_BLACK = (0, 0, 0)
     COLOR_GREEN = (0, 255, 0)
     COLOR_RED = (255, 0, 0)
+    smallfont = pygame.font.SysFont('Corbel', 25)
 
     score = 0
     lives = 3
@@ -25,16 +26,14 @@ class ScoreBoard:
         self.surface.fill(self.COLOR_WHITE)
 
     def draw(self):
-        smallfont = pygame.font.SysFont('Corbel', 25)
-
-        text1 = smallfont.render('Score: ', True, self.COLOR_BLACK)
+        text1 = self.smallfont.render('Score: ', True, self.COLOR_BLACK)
         self.surface.blit(text1, (10, 25))
-        value1 = smallfont.render(str(self.score), True, self.COLOR_GREEN)
+        value1 = self.smallfont.render(str(self.score), True, self.COLOR_GREEN)
         self.surface.blit(value1, (65, 25))
 
-        text2 = smallfont.render('Lives: ', True, self.COLOR_BLACK)
+        text2 = self.smallfont.render('Lives: ', True, self.COLOR_BLACK)
         self.surface.blit(text2, (10, 53))
-        value2 = smallfont.render(str(self.lives), True, self.COLOR_RED)
+        value2 = self.smallfont.render(str(self.lives), True, self.COLOR_RED)
         self.surface.blit(value2, (65, 53))
 
     def get_surface(self):
@@ -42,10 +41,13 @@ class ScoreBoard:
 
     def correct(self):
         self.score += 10
+        self.surface.fill(self.COLOR_WHITE)
+        self.draw()
 
     def incorrect(self):
-        self.score -= 10
+        if self.score >= 10:
+            self.score -= 10
         self.lives -= 1
-
-
-score = ScoreBoard(5)
+        self.surface.fill(self.COLOR_WHITE)
+        self.draw()
+        return self.lives
