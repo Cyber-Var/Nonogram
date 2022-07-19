@@ -12,16 +12,19 @@ class HorizontalNumbers:
     COLOR_GRAY = (100, 100, 100)
     COLOR_BLACK = (0, 0, 0)
 
-    cols = [[], [], [], [], [], []]
+    cols = []
 
     def __init__(self, difficulty, arr):
         self.difficulty = difficulty
+        for n in range(self.difficulty):
+            self.cols.append([])
         self.arr = arr
         self.initialise()
         self.set_cols()
         self.draw()
 
     def initialise(self):
+        self.surface.set_alpha(150)
         self.surface.fill(self.COLOR_WHITE)
 
     def draw(self):
@@ -31,11 +34,14 @@ class HorizontalNumbers:
         for i in range(self.difficulty):
             pygame.draw.line(self.surface, self.COLOR_GRAY, (i * wh, 0), (i * wh, 100), 1)
 
-            text = " "
+            text = []
             for num in self.cols[i]:
-                text += str(num) + " "
-            numbers = font.render(text, True, self.COLOR_BLACK)
-            self.surface.blit(numbers, (i * wh + wh / 2 - 20, 10))
+                text.append(str(num))
+            y = 10
+            for line in text:
+                number = font.render(line, True, self.COLOR_BLACK)
+                self.surface.blit(number, (i * wh + wh / 2 - 20, y))
+                y += 30
 
         pygame.draw.line(self.surface, self.COLOR_GRAY, (499, 0), (499, 100), 1)
 
@@ -51,4 +57,3 @@ class HorizontalNumbers:
                 if (summ != 0 and self.arr[j][i] == 0) or (self.arr[j][i] == 1 and j == self.difficulty - 1):
                     self.cols[i].append(summ)
                     summ = 0
-        print(self.cols)

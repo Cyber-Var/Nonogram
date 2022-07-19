@@ -1,6 +1,7 @@
 import pygame
 from pygame.locals import *
 import sys
+import time
 
 from GameField_window import Field
 from HorizontalNumbers_window import HorizontalNumbers
@@ -15,59 +16,80 @@ arr = [[1, 1, 0, 0, 0, 1],
        [0, 1, 1, 1, 1, 0],
        [0, 0, 0, 1, 0, 0]]
 
-pygame.init()
 
-surface = pygame.display.set_mode((605, 700))
-surface.fill((255, 255, 255))
+class Game:
 
-field = Field(6, arr)
-horizontal = HorizontalNumbers(6, arr)
-vertical = VerticalNumbers(6, arr)
-score = ScoreBoard(6)
+    pygame.init()
+    surface = pygame.display.set_mode((605, 700), pygame.SRCALPHA)
 
-smallfont = pygame.font.SysFont('Corbel', 25)
-text = smallfont.render('Exit', True, (200, 200, 200))
-pygame.draw.rect(surface, (100, 100, 100), [250, 635, 100, 30])
-surface.blit(text, (280, 642))
+    bg_image = pygame.image.load('resources/game_background.jpeg')
+    bg_image = pygame.transform.scale(bg_image, (605, 700))
 
+    small_font = pygame.font.SysFont('Corbel', 25)
+    text = small_font.render('Back', True, (200, 200, 200))
 
-def exit_game():
-    pygame.quit()
-    sys.exit()
+    big_font = pygame.font.SysFont('Corbel', 125)
 
+    def __init__(self):
+        self.difficulty = 6
+        self.field = Field(self.difficulty, arr)
+        self.horizontal = HorizontalNumbers(self.difficulty, arr)
+        self.vertical = VerticalNumbers(self.difficulty, arr)
+        self.score = ScoreBoard(self.difficulty)
 
-def compare_squares(squares):
-    for i in range(6):
-        for j in range(6):
-            if arr[i][j] != squares[i][j].is_filled():
-                return False
-    return True
+        self.loop()
 
+    def exit_game(self):
+        pygame.quit()
+        sys.exit()
 
-while 1:
-    mouse = pygame.mouse.get_pos()
+    def compare_squares(self, squares):
+        for i in range(self.difficulty):
+            for j in range(self.difficulty):
+                if arr[i][j] != squares[i][j].is_filled():
+                    return False
+        return True
 
-    for event in pygame.event.get():
-        if event.type == QUIT:
-            exit_game()
-        if event.type == MOUSEBUTTONDOWN:
-            if 250 <= mouse[0] <= 350 and 635 <= mouse[1] <= 665:
-                exit_game()
-            elif 100 <= mouse[0] <= 600 and 100 <= mouse[1] <= 600:
-                handle = field.handle_mouse(mouse)
-                if handle:
-                    score.correct()
-                else:
-                    if score.incorrect() == -1:
-                        print("lost")
-                        exit_game()
-                if compare_squares(field.get_squares()):
-                    print("won")
-                    exit_game()
+    def end(self, won):
+        self.surface.blit(self.bg_image, (0, 0))
+        if won:
+            txt = self.big_font.render('You Won !!!', True, (255, 0, 0))
+        else:
+            txt = self.big_font.render('You Lost :(', True, (0, 0, 0))
+        self.surface.blit(txt, (70, 300))
+        pygame.display.update()
+        time.sleep(2)
+        self.exit_game()
 
-    surface.blit(score.get_surface(), (0, 0))
-    surface.blit(vertical.get_surface(), (0, 100))
-    surface.blit(horizontal.get_surface(), (100, 0))
-    surface.blit(field.get_surface(), (100, 100))
+    def loop(self):
+        clock = pygame.time.Clock()
 
-    pygame.display.update()
+        while 1:
+            mouse = pygame.mouse.get_pos()
+
+            for event in pygame.event.get():
+                if event.type == QUIT:
+                    self.exit_game()
+                if event.type == MOUSEBUTTONDOWN:
+                    if 250 <= mouse[0] <= 350 and 635 <= mouse[1] <= 665:
+                        self.exit_game()
+                    elif 100 <= mouse[0] <= 600 and 100 <= mouse[1] <= 600:
+                        handle = self.field.handle_mouse(mouse)
+                        if handle:
+                            self.score.correct()
+                        else:
+                            if self.score.incorrect() == -1:
+                                self.end(False)
+                        if self.compare_squares(self.field.get_squares()):
+                            self.end(True)
+
+            self.surface.blit(self.bg_image, (0, 0))
+            self.surface.blit(self.score.get_surface(), (0, 0))
+            self.surface.blit(self.vertical.get_surface(), (0, 100))
+            self.surface.blit(self.horizontal.get_surface(), (100, 0))
+            self.surface.blit(self.field.get_surface(), (100, 100))
+            pygame.draw.rect(self.surface, (100, 100, 100), [250, 635, 100, 30])
+            self.surface.blit(self.text, (280, 642))
+
+            pygame.display.update()
+            clock.tick(60)

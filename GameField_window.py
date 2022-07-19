@@ -13,27 +13,28 @@ class Field:
     surface = pygame.Surface((500, 500))
     COLOR_WHITE = (255, 255, 255)
     COLOR_BLACK = (0, 0, 0)
-    COLOR_PINK = (255, 204, 203)
+    COLOR_PINK = (251, 92, 125)
 
-    squares = [[], [], [], [], [], []]
-    rectangles = [[], [], [], [], [], []]
+    squares = []
+    rectangles = []
 
     def __init__(self, difficulty, arr):
         self.difficulty = difficulty
+        for n in range(self.difficulty):
+            self.squares.append([])
+            self.rectangles.append([])
         self.arr = arr
         self.initialise()
         self.draw()
 
     def initialise(self):
+        self.surface.set_alpha(200)
         self.surface.fill(self.COLOR_WHITE)
 
     def draw(self):
         wh = 500 / self.difficulty
         for i in range(self.difficulty):
             for j in range(self.difficulty):
-                '''opacity = 1
-                if self.squares[i][j].is_filled():
-                    opacity = 0'''
                 rect = pygame.Rect(j * wh, i * wh, wh, wh)
                 pygame.draw.rect(self.surface, self.COLOR_BLACK, rect, 1)
                 self.squares[i].append(Square(i, j))
@@ -55,6 +56,9 @@ class Field:
             pygame.draw.rect(self.surface, self.COLOR_BLACK, self.rectangles[i][j], 0)
             return True
         else:
-            pygame.draw.rect(self.surface, self.COLOR_PINK, self.rectangles[i][j], 0)
-            pygame.draw.rect(self.surface, self.COLOR_BLACK, self.rectangles[i][j], 1)
+            rect = self.rectangles[i][j]
+            left = rect.left
+            top = rect.top
+            pygame.draw.line(self.surface, self.COLOR_PINK, (left, top), (left + rect.width, top + rect.height), 4)
+            pygame.draw.line(self.surface, self.COLOR_PINK, (left + rect.width, top), (left, top + rect.height), 4)
             return False

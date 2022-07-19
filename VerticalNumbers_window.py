@@ -10,16 +10,19 @@ class VerticalNumbers:
     COLOR_GRAY = (100, 100, 100)
     COLOR_BLACK = (0, 0, 0)
 
-    rows = [[], [], [], [], [], []]
+    rows = []
 
     def __init__(self, difficulty, arr):
         self.difficulty = difficulty
+        for n in range(self.difficulty):
+            self.rows.append([])
         self.arr = arr
         self.initialise()
         self.set_rows()
         self.draw()
 
     def initialise(self):
+        self.surface.set_alpha(150)
         self.surface.fill(self.COLOR_WHITE)
 
     def draw(self):

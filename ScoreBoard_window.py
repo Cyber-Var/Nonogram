@@ -23,6 +23,7 @@ class ScoreBoard:
         self.draw()
 
     def initialise(self):
+        self.surface.set_alpha(150)
         self.surface.fill(self.COLOR_WHITE)
 
     def draw(self):
