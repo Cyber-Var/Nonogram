@@ -48,8 +48,9 @@ class Field:
 
     def handle_mouse(self, mouse):
         wh = 500 / self.difficulty
-        i = trunc(mouse[1] / wh) - 1
-        j = trunc(mouse[0] / wh) - 1
+
+        i = trunc((mouse[1] - 100) / wh)
+        j = trunc((mouse[0] - 100) / wh)
 
         if self.arr[i][j] == 1:
             self.squares[i][j].fill()

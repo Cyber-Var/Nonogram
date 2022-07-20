@@ -9,12 +9,32 @@ from ScoreBoard_window import ScoreBoard
 from VerticalNumbers_window import VerticalNumbers
 
 
-arr = [[1, 1, 0, 0, 0, 1],
+easy = [[1, 1, 0, 0, 0, 1],
        [0, 1, 0, 1, 1, 1],
        [0, 1, 0, 1, 1, 0],
        [0, 1, 1, 1, 0, 0],
        [0, 1, 1, 1, 1, 0],
        [0, 0, 0, 1, 0, 0]]
+
+medium = [[0, 1, 1, 1, 0, 0, 0, 0],
+          [1, 1, 0, 1, 0, 0, 0, 0],
+          [0, 1, 1, 1, 0, 0, 1, 1],
+          [0, 0, 1, 1, 0, 0, 1, 1],
+          [0, 0, 1, 1, 1, 1, 1, 1],
+          [1, 0, 1, 1, 1, 1, 1, 0],
+          [1, 1, 1, 1, 1, 1, 0, 0],
+          [0, 0, 0, 0, 1, 0, 0, 0]]
+
+hard = [[0, 1, 1, 1, 1, 1, 1, 1, 0, 0],
+       [0, 1, 1, 1, 0, 0, 1, 0, 0, 0],
+       [0, 1, 1, 1, 0, 0, 1, 0, 0, 0],
+       [0, 1, 1, 1, 0, 0, 1, 0, 0, 0],
+       [0, 1, 1, 1, 0, 0, 1, 0, 0, 0],
+       [1, 1, 1, 1, 1, 1, 1, 1, 1, 0],
+       [1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+       [1, 1, 1, 1, 1, 1, 1, 1, 0, 1],
+       [1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+       [0, 1, 1, 0, 0, 0, 0, 1, 1, 0]]
 
 
 class Game:
@@ -30,11 +50,18 @@ class Game:
 
     big_font = pygame.font.SysFont('Corbel', 125)
 
-    def __init__(self):
-        self.difficulty = 6
-        self.field = Field(self.difficulty, arr)
-        self.horizontal = HorizontalNumbers(self.difficulty, arr)
-        self.vertical = VerticalNumbers(self.difficulty, arr)
+    def __init__(self, difficulty):
+        self.difficulty = difficulty
+
+        if difficulty == 6:
+            self.arr = easy
+        elif difficulty == 8:
+            self.arr = medium
+        else:
+            self.arr = hard
+        self.field = Field(self.difficulty, self.arr)
+        self.horizontal = HorizontalNumbers(self.difficulty, self.arr)
+        self.vertical = VerticalNumbers(self.difficulty, self.arr)
         self.score = ScoreBoard(self.difficulty)
 
         self.loop()
@@ -46,7 +73,7 @@ class Game:
     def compare_squares(self, squares):
         for i in range(self.difficulty):
             for j in range(self.difficulty):
-                if arr[i][j] != squares[i][j].is_filled():
+                if self.arr[i][j] != squares[i][j].is_filled():
                     return False
         return True
 
