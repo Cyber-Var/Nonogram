@@ -9,34 +9,6 @@ from ScoreBoard_window import ScoreBoard
 from VerticalNumbers_window import VerticalNumbers
 
 
-easy = [[1, 1, 0, 0, 0, 1],
-       [0, 1, 0, 1, 1, 1],
-       [0, 1, 0, 1, 1, 0],
-       [0, 1, 1, 1, 0, 0],
-       [0, 1, 1, 1, 1, 0],
-       [0, 0, 0, 1, 0, 0]]
-
-medium = [[0, 1, 1, 1, 0, 0, 0, 0],
-          [1, 1, 0, 1, 0, 0, 0, 0],
-          [0, 1, 1, 1, 0, 0, 1, 1],
-          [0, 0, 1, 1, 0, 0, 1, 1],
-          [0, 0, 1, 1, 1, 1, 1, 1],
-          [1, 0, 1, 1, 1, 1, 1, 0],
-          [1, 1, 1, 1, 1, 1, 0, 0],
-          [0, 0, 0, 0, 1, 0, 0, 0]]
-
-hard = [[0, 1, 1, 1, 1, 1, 1, 1, 0, 0],
-       [0, 1, 1, 1, 0, 0, 1, 0, 0, 0],
-       [0, 1, 1, 1, 0, 0, 1, 0, 0, 0],
-       [0, 1, 1, 1, 0, 0, 1, 0, 0, 0],
-       [0, 1, 1, 1, 0, 0, 1, 0, 0, 0],
-       [1, 1, 1, 1, 1, 1, 1, 1, 1, 0],
-       [1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
-       [1, 1, 1, 1, 1, 1, 1, 1, 0, 1],
-       [1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
-       [0, 1, 1, 0, 0, 0, 0, 1, 1, 0]]
-
-
 class Game:
 
     pygame.init()
@@ -50,15 +22,12 @@ class Game:
 
     big_font = pygame.font.SysFont('Corbel', 125)
 
-    def __init__(self, difficulty):
+    def __init__(self, difficulty, arr, level):
         self.difficulty = difficulty
+        self.level = level
 
-        if difficulty == 6:
-            self.arr = easy
-        elif difficulty == 8:
-            self.arr = medium
-        else:
-            self.arr = hard
+        self.arr = arr
+
         self.field = Field(self.difficulty, self.arr)
         self.horizontal = HorizontalNumbers(self.difficulty, self.arr)
         self.vertical = VerticalNumbers(self.difficulty, self.arr)
@@ -79,11 +48,26 @@ class Game:
 
     def end(self, won):
         self.surface.blit(self.bg_image, (0, 0))
+
+        image_name = 'resources/'
+        if self.difficulty == 6:
+            image_name += 'easy'
+        elif self.difficulty == 8:
+            image_name += 'medium'
+        else:
+            image_name += 'hard'
+        image_name += '/' + str(self.level) + '.jpeg'
+
         if won:
             txt = self.big_font.render('You Won !!!', True, (255, 0, 0))
+            self.surface.blit(txt, (70, 15))
+            image = pygame.image.load(image_name)
+            image = pygame.transform.scale(image, (500, 500))
+            self.surface.blit(image, (50, 100))
         else:
             txt = self.big_font.render('You Lost :(', True, (0, 0, 0))
-        self.surface.blit(txt, (70, 300))
+            self.surface.blit(txt, (70, 300))
+
         pygame.display.update()
         time.sleep(2)
         self.exit_game()
@@ -118,5 +102,34 @@ class Game:
             pygame.draw.rect(self.surface, (100, 100, 100), [250, 635, 100, 30])
             self.surface.blit(self.text, (280, 642))
 
-            pygame.display.update()
+            pygame.display.flip()
             clock.tick(60)
+
+
+'''easy = [[1, 1, 0, 0, 0, 1],
+        [0, 1, 0, 1, 1, 1],
+        [0, 1, 0, 1, 1, 0],
+        [0, 1, 1, 1, 0, 0],
+        [0, 1, 1, 1, 1, 0],
+        [0, 0, 0, 1, 0, 0]]
+
+
+medium = [[0, 1, 1, 1, 0, 0, 0, 0],
+          [1, 1, 0, 1, 0, 0, 0, 0],
+          [0, 1, 1, 1, 0, 0, 1, 1],
+          [0, 0, 1, 1, 0, 0, 1, 1],
+          [0, 0, 1, 1, 1, 1, 1, 1],
+          [1, 0, 1, 1, 1, 1, 1, 0],
+          [1, 1, 1, 1, 1, 1, 0, 0],
+          [0, 0, 0, 0, 1, 0, 0, 0]]
+
+hard = [[0, 1, 1, 1, 1, 1, 1, 1, 0, 0],
+       [0, 1, 1, 1, 0, 0, 1, 0, 0, 0],
+       [0, 1, 1, 1, 0, 0, 1, 0, 0, 0],
+       [0, 1, 1, 1, 0, 0, 1, 0, 0, 0],
+       [0, 1, 1, 1, 0, 0, 1, 0, 0, 0],
+       [1, 1, 1, 1, 1, 1, 1, 1, 1, 0],
+       [1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+       [1, 1, 1, 1, 1, 1, 1, 1, 0, 1],
+       [1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+       [0, 1, 1, 0, 0, 0, 0, 1, 1, 0]]'''

@@ -12,6 +12,3 @@ class Square:
 
     def fill(self):
         self.filled = 1
-
-    def unfill(self):
-        self.filled = 0

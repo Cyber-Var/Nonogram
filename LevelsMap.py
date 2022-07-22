@@ -5,6 +5,30 @@ import sys
 from Game import Game
 
 
+def get_array(difficulty, level):
+    arr = []
+
+    filename = "hard.txt"
+    if difficulty == 6:
+        filename = "easy.txt"
+    elif difficulty == 8:
+        filename = "medium.txt"
+
+    file = open(filename, 'r')
+    lines = file.readlines()
+    line = lines[level]
+    rows = line.split(" ")
+
+    for i in range(len(rows)):
+        row = []
+        rows[i] = rows[i].replace("\n", "")
+        for j in range(len(rows[i])):
+            row.append(int(rows[i][j]))
+        arr.append(row)
+
+    return arr
+
+
 class Levels:
     pygame.init()
     surface = pygame.display.set_mode((605, 700), pygame.SRCALPHA)
@@ -28,9 +52,8 @@ class Levels:
                 if event.type == QUIT:
                     self.exit_game()
                 if event.type == MOUSEBUTTONDOWN:
-                    Game(self.difficulty)
                     if 80 <= mouse[0] <= 150 and 50 <= mouse[1] <= 140:
-                        print("tunnel")
+                        Game(self.difficulty, get_array(self.difficulty, 0), 0)
                     elif 530 <= mouse[0] <= 580 and 120 <= mouse[1] <= 170:
                         print("rocks")
                     elif 5 <= mouse[0] <= 85 and 300 <= mouse[1] <= 415:

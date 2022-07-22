@@ -3,9 +3,7 @@ from pygame.locals import *
 import sys
 
 from Difficulties import Difficulties
-from Game import Game
 from Instructions import Instructions
-from LevelsMap import Levels
 
 
 class Menu:
