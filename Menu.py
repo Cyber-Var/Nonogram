@@ -203,9 +203,11 @@ class Levels:
                         # statue
                         Game(self.difficulty, get_array(self.difficulty, 5), 5)
                     elif 525 <= mouse[0] <= 605 and 440 <= mouse[1] <= 540:
-                        print("fisher")
+                        # fisher
+                        Game(self.difficulty, get_array(self.difficulty, 6), 6)
                     elif 375 <= mouse[0] <= 465 and 590 <= mouse[1] <= 665:
-                        print("car")
+                        # car
+                        Game(self.difficulty, get_array(self.difficulty, 7), 7)
 
             self.surface.blit(self.bg_image, (0, 0))
             # tunnel:
