@@ -3,7 +3,7 @@ from pygame.locals import *
 import sys
 
 
-class Instructions:
+'''class Instructions:
 
     pygame.init()
     surface = pygame.display.set_mode((605, 700), pygame.SRCALPHA)
@@ -41,4 +41,4 @@ class Instructions:
             pygame.draw.rect(self.surface, (100, 100, 100), [250, 635, 100, 30])
             self.surface.blit(self.text, (280, 642))
 
-            pygame.display.update()
+            pygame.display.update()'''

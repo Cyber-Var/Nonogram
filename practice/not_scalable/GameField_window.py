@@ -6,7 +6,7 @@ import time
 from Square import Square
 
 
-class Field:
+'''class Field:
 
     pygame.display.init()
 
@@ -62,4 +62,4 @@ class Field:
             top = rect.top
             pygame.draw.line(self.surface, self.COLOR_PINK, (left, top), (left + rect.width, top + rect.height), 4)
             pygame.draw.line(self.surface, self.COLOR_PINK, (left + rect.width, top), (left, top + rect.height), 4)
-            return False
+            return False'''

@@ -5,7 +5,7 @@ import sys
 from Game import Game
 
 
-def get_array(difficulty, level):
+'''def get_array(difficulty, level):
     arr = []
 
     filename = "hard.txt"
@@ -87,4 +87,4 @@ class Levels:
             # car:
             pygame.draw.rect(self.surface, (255, 255, 255), [375, 590, 90, 75], 1)
 
-            pygame.display.update()
+            pygame.display.update()'''

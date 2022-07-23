@@ -1,6 +1,6 @@
 
 
-class Square:
+'''class Square:
 
     def __init__(self, x, y, filled=0):
         self.filled = filled
@@ -11,4 +11,4 @@ class Square:
         return self.filled
 
     def fill(self):
-        self.filled = 1
+        self.filled = 1'''

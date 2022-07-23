@@ -1,7 +1,7 @@
 import pygame
 
 
-class VerticalNumbers:
+'''class VerticalNumbers:
 
     pygame.init()
 
@@ -51,4 +51,4 @@ class VerticalNumbers:
                     summ += 1
                 if (summ != 0 and self.arr[i][j] == 0) or (self.arr[i][j] == 1 and j == self.difficulty - 1):
                     self.rows[i].append(summ)
-                    summ = 0
+                    summ = 0'''

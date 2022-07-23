@@ -3,7 +3,7 @@ from pygame.locals import *
 import sys
 
 
-class HorizontalNumbers:
+'''class HorizontalNumbers:
 
     pygame.init()
 
@@ -56,4 +56,4 @@ class HorizontalNumbers:
                     summ += 1
                 if (summ != 0 and self.arr[j][i] == 0) or (self.arr[j][i] == 1 and j == self.difficulty - 1):
                     self.cols[i].append(summ)
-                    summ = 0
+                    summ = 0'''

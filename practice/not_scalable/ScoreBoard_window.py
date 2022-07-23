@@ -3,7 +3,7 @@ from pygame.locals import *
 import sys
 
 
-class ScoreBoard:
+'''class ScoreBoard:
 
     pygame.init()
 
@@ -51,4 +51,4 @@ class ScoreBoard:
         self.lives -= 1
         self.surface.fill(self.COLOR_WHITE)
         self.draw()
-        return self.lives
+        return self.lives'''

@@ -9,7 +9,7 @@ from ScoreBoard_window import ScoreBoard
 from VerticalNumbers_window import VerticalNumbers
 
 
-class Game:
+'''class Game:
 
     pygame.init()
     surface = pygame.display.set_mode((605, 700), pygame.SRCALPHA)
@@ -103,7 +103,7 @@ class Game:
             self.surface.blit(self.text, (280, 642))
 
             pygame.display.flip()
-            clock.tick(60)
+            clock.tick(60)'''
 
 
 '''easy = [[1, 1, 0, 0, 0, 1],

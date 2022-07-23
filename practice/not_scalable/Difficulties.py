@@ -5,7 +5,7 @@ import sys
 from LevelsMap import Levels
 
 
-class Difficulties:
+'''class Difficulties:
     pygame.init()
     surface = pygame.display.set_mode((605, 700), pygame.SRCALPHA)
 
@@ -48,4 +48,4 @@ class Difficulties:
             pygame.draw.rect(self.surface, (100, 100, 100), [250, 500, 100, 30])
             self.surface.blit(self.text_exit, (280, 507))
 
-            pygame.display.update()
+            pygame.display.update()'''
