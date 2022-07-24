@@ -38,7 +38,6 @@ class Menu:
                     elif 225 <= mouse[0] <= 375 and 350 <= mouse[1] <= 380:
                         Instructions()
                     elif 250 <= mouse[0] <= 350 and 500 <= mouse[1] <= 530:
-                        print("exit")
                         exit_game()
 
             self.surface.blit(self.bg_image, (0, 0))
@@ -54,7 +53,6 @@ class Menu:
 
 class Instructions:
 
-    pygame.init()
     surface = pygame.display.set_mode((605, 700), pygame.SRCALPHA)
 
     bg_image = pygame.image.load('resources/backgrounds/instructions_background.jpeg')
@@ -90,7 +88,7 @@ class Instructions:
 
 
 class Difficulties:
-    pygame.init()
+
     surface = pygame.display.set_mode((605, 700), pygame.SRCALPHA)
 
     bg_image = pygame.image.load('resources/backgrounds/difficulties_background.jpeg')
@@ -161,7 +159,7 @@ def get_array(difficulty, level):
 
 
 class Levels:
-    pygame.init()
+
     surface = pygame.display.set_mode((605, 700), pygame.SRCALPHA)
 
     bg_image = pygame.image.load('resources/backgrounds/levels_map_background.jpeg')
@@ -235,7 +233,6 @@ class Levels:
 
 class Game:
 
-    pygame.init()
     surface = pygame.display.set_mode((605, 700), pygame.SRCALPHA)
 
     bg_image = pygame.image.load('resources/backgrounds/game_background.jpeg')
@@ -344,22 +341,21 @@ class Game:
 
 class Field:
 
-    pygame.display.init()
-
     surface = pygame.Surface((500, 500))
     COLOR_WHITE = (255, 255, 255)
     COLOR_BLACK = (0, 0, 0)
     COLOR_PINK = (251, 92, 125)
 
-    squares = []
-    rectangles = []
-
     def __init__(self, difficulty, arr):
         self.difficulty = difficulty
+
+        self.squares = []
+        self.rectangles = []
         for n in range(self.difficulty):
             self.squares.append([])
             self.rectangles.append([])
         self.arr = arr
+
         self.initialise()
         self.draw()
 
@@ -403,20 +399,19 @@ class Field:
 
 class HorizontalNumbers:
 
-    pygame.init()
-
     surface = pygame.Surface((500, 100))
     COLOR_WHITE = (255, 255, 255)
     COLOR_GRAY = (100, 100, 100)
     COLOR_BLACK = (0, 0, 0)
 
-    cols = []
-
     def __init__(self, difficulty, arr):
         self.difficulty = difficulty
+
+        self.cols = []
         for n in range(self.difficulty):
             self.cols.append([])
         self.arr = arr
+
         self.initialise()
         self.set_cols()
         self.draw()
@@ -426,7 +421,13 @@ class HorizontalNumbers:
         self.surface.fill(self.COLOR_WHITE)
 
     def draw(self):
-        font = pygame.font.SysFont('arial', 25)
+
+        numbers = 0
+        for col in self.cols:
+            if len(col) > numbers:
+                numbers = len(col)
+        font_size = int(100 / numbers) - 5
+        font = pygame.font.SysFont('arial', font_size)
 
         wh = 500 / self.difficulty
         for i in range(self.difficulty):
@@ -435,11 +436,12 @@ class HorizontalNumbers:
             text = []
             for num in self.cols[i]:
                 text.append(str(num))
-            y = 10
+            leftover = (100 - font_size * numbers) / (numbers + 1)
+            y = leftover
             for line in text:
                 number = font.render(line, True, self.COLOR_BLACK)
-                self.surface.blit(number, (i * wh + wh / 2 - 20, y))
-                y += 30
+                self.surface.blit(number, (i * wh - (wh - font_size / 2), y))
+                y += leftover + font_size
 
         pygame.draw.line(self.surface, self.COLOR_GRAY, (499, 0), (499, 100), 1)
 
@@ -455,24 +457,24 @@ class HorizontalNumbers:
                 if (sums != 0 and self.arr[j][i] == 0) or (self.arr[j][i] == 1 and j == self.difficulty - 1):
                     self.cols[i].append(sums)
                     sums = 0
+        print(self.cols)
 
 
 class VerticalNumbers:
-
-    pygame.init()
 
     surface = pygame.Surface((100, 500))
     COLOR_WHITE = (255, 255, 255)
     COLOR_GRAY = (100, 100, 100)
     COLOR_BLACK = (0, 0, 0)
 
-    rows = []
-
     def __init__(self, difficulty, arr):
         self.difficulty = difficulty
+
+        self.rows = []
         for n in range(self.difficulty):
             self.rows.append([])
         self.arr = arr
+
         self.initialise()
         self.set_rows()
         self.draw()
@@ -512,8 +514,6 @@ class VerticalNumbers:
 
 class ScoreBoard:
 
-    pygame.init()
-
     surface = pygame.Surface((100, 100))
     COLOR_WHITE = (255, 255, 255)
     COLOR_BLACK = (0, 0, 0)
@@ -521,11 +521,12 @@ class ScoreBoard:
     COLOR_RED = (255, 0, 0)
     small_font = pygame.font.SysFont('Corbel', 25)
 
-    score = 0
-    lives = 3
-
     def __init__(self, difficulty):
         self.difficulty = difficulty
+
+        self.score = 0
+        self.lives = 3
+
         self.initialise()
         self.draw()
 
