@@ -303,6 +303,7 @@ class Game:
     def loop(self):
         clock = pygame.time.Clock()
 
+        fill = True
         end = True
         won_lost = False
         while end:
@@ -315,7 +316,7 @@ class Game:
                     if 150 <= mouse[0] <= 250 and 635 <= mouse[1] <= 665:
                         Menu()
                     elif 100 <= mouse[0] <= 600 and 100 <= mouse[1] <= 600:
-                        handle = self.field.handle_mouse(mouse)
+                        handle = self.field.handle_mouse(mouse, fill)
                         if handle == 1:
                             self.score.correct()
                         elif handle == -1:
@@ -324,6 +325,8 @@ class Game:
                         if self.compare_squares(self.field.get_squares()):
                             won_lost = True
                             end = False
+                    elif 400 <= mouse[0] <= 450 and 625 <= mouse[1] <= 675:
+                        fill = not fill
 
             self.surface.blit(self.bg_image, (0, 0))
             self.surface.blit(self.score.get_surface(), (0, 0))
@@ -334,8 +337,13 @@ class Game:
             pygame.draw.rect(self.surface, (100, 100, 100), [150, 635, 100, 30])
             self.surface.blit(self.text, (180, 642))
 
-            pygame.draw.rect(self.surface, (255, 0, 0), [400, 625, 150, 55], 4, 10)
-            pygame.draw.line(self.surface, (255, 0, 0), (475, 625), (475, 678), 4)
+            pygame.draw.rect(self.surface, (255, 255, 255), [400, 625, 50, 50], 0, 10)
+            pygame.draw.rect(self.surface, (0, 0, 0), [400, 625, 50, 50], 2, 10)
+            if fill:
+                pygame.draw.rect(self.surface, (0, 0, 0), [415, 640, 20, 20])
+            else:
+                pygame.draw.line(self.surface, (0, 0, 0), (415, 640), (435, 660))
+                pygame.draw.line(self.surface, (0, 0, 0), (435, 640), (415, 660))
 
             pygame.display.flip()
             clock.tick(60)
@@ -382,28 +390,45 @@ class Field:
     def get_squares(self):
         return self.squares
 
-    def handle_mouse(self, mouse):
+    def handle_mouse(self, mouse, fill):
         wh = 500 / self.difficulty
 
         i = trunc((mouse[1] - 100) / wh)
         j = trunc((mouse[0] - 100) / wh)
 
-        if self.arr[i][j] == 1:
-            if self.squares[i][j].is_filled():
-                return 0
-            self.squares[i][j].fill()
-            pygame.draw.rect(self.surface, self.COLOR_BLACK, self.rectangles[i][j], 0)
-            return 1
+        if self.squares[i][j].is_filled() or self.squares[i][j].is_crossed():
+            return 0
+        if fill:
+            if self.arr[i][j] == 1:
+                self.squares[i][j].fill()
+                pygame.draw.rect(self.surface, self.COLOR_BLACK, self.rectangles[i][j], 0)
+                return 1
+            else:
+                self.squares[i][j].cross()
+                rect = self.rectangles[i][j]
+                left = rect.left
+                top = rect.top
+                pygame.draw.line(self.surface, self.COLOR_PINK, (left, top), (left + rect.width, top + rect.height), 4)
+                pygame.draw.line(self.surface, self.COLOR_PINK, (left + rect.width, top), (left, top + rect.height), 4)
+                return -1
         else:
-            if self.squares[i][j].is_crossed():
-                return 0
-            self.squares[i][j].cross()
-            rect = self.rectangles[i][j]
-            left = rect.left
-            top = rect.top
-            pygame.draw.line(self.surface, self.COLOR_PINK, (left, top), (left + rect.width, top + rect.height), 4)
-            pygame.draw.line(self.surface, self.COLOR_PINK, (left + rect.width, top), (left, top + rect.height), 4)
-            return -1
+            if self.arr[i][j] != 1:
+                '''if self.squares[i][j].is_filled():
+                    return 0
+                self.squares[i][j].fill()
+                pygame.draw.rect(self.surface, self.COLOR_BLACK, self.rectangles[i][j], 0)
+                return 1'''
+                self.squares[i][j].cross()
+                rect = self.rectangles[i][j]
+                left = rect.left
+                top = rect.top
+                pygame.draw.line(self.surface, self.COLOR_BLACK, (left, top), (left + rect.width, top + rect.height), 4)
+                pygame.draw.line(self.surface, self.COLOR_BLACK, (left + rect.width, top), (left, top + rect.height), 4)
+                return 1
+            else:
+                self.squares[i][j].fill()
+                pygame.draw.rect(self.surface, self.COLOR_PINK, self.rectangles[i][j], 0)
+                return -1
 
 
 class HorizontalNumbers:
