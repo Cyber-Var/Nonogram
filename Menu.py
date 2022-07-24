@@ -312,13 +312,13 @@ class Game:
                 if event.type == QUIT:
                     exit_game()
                 if event.type == MOUSEBUTTONDOWN:
-                    if 250 <= mouse[0] <= 350 and 635 <= mouse[1] <= 665:
+                    if 150 <= mouse[0] <= 250 and 635 <= mouse[1] <= 665:
                         Menu()
                     elif 100 <= mouse[0] <= 600 and 100 <= mouse[1] <= 600:
                         handle = self.field.handle_mouse(mouse)
-                        if handle:
+                        if handle == 1:
                             self.score.correct()
-                        else:
+                        elif handle == -1:
                             if self.score.incorrect() == -1:
                                 end = False
                         if self.compare_squares(self.field.get_squares()):
@@ -330,8 +330,12 @@ class Game:
             self.surface.blit(self.vertical.get_surface(), (0, 100))
             self.surface.blit(self.horizontal.get_surface(), (100, 0))
             self.surface.blit(self.field.get_surface(), (100, 100))
-            pygame.draw.rect(self.surface, (100, 100, 100), [250, 635, 100, 30])
-            self.surface.blit(self.text, (280, 642))
+
+            pygame.draw.rect(self.surface, (100, 100, 100), [150, 635, 100, 30])
+            self.surface.blit(self.text, (180, 642))
+
+            pygame.draw.rect(self.surface, (255, 0, 0), [400, 625, 150, 55], 4, 10)
+            pygame.draw.line(self.surface, (255, 0, 0), (475, 625), (475, 678), 4)
 
             pygame.display.flip()
             clock.tick(60)
@@ -385,16 +389,21 @@ class Field:
         j = trunc((mouse[0] - 100) / wh)
 
         if self.arr[i][j] == 1:
+            if self.squares[i][j].is_filled():
+                return 0
             self.squares[i][j].fill()
             pygame.draw.rect(self.surface, self.COLOR_BLACK, self.rectangles[i][j], 0)
-            return True
+            return 1
         else:
+            if self.squares[i][j].is_crossed():
+                return 0
+            self.squares[i][j].cross()
             rect = self.rectangles[i][j]
             left = rect.left
             top = rect.top
             pygame.draw.line(self.surface, self.COLOR_PINK, (left, top), (left + rect.width, top + rect.height), 4)
             pygame.draw.line(self.surface, self.COLOR_PINK, (left + rect.width, top), (left, top + rect.height), 4)
-            return False
+            return -1
 
 
 class HorizontalNumbers:
@@ -427,6 +436,8 @@ class HorizontalNumbers:
             if len(col) > numbers:
                 numbers = len(col)
         font_size = int(100 / numbers) - 5
+        if font_size > 45:
+            font_size = 45
         font = pygame.font.SysFont('arial', font_size)
 
         wh = 500 / self.difficulty
@@ -440,7 +451,7 @@ class HorizontalNumbers:
             y = leftover
             for line in text:
                 number = font.render(line, True, self.COLOR_BLACK)
-                self.surface.blit(number, (i * wh - (wh - font_size / 2), y))
+                self.surface.blit(number, (i * wh + wh / 2 - font_size / 3, y))
                 y += leftover + font_size
 
         pygame.draw.line(self.surface, self.COLOR_GRAY, (499, 0), (499, 100), 1)
@@ -457,7 +468,6 @@ class HorizontalNumbers:
                 if (sums != 0 and self.arr[j][i] == 0) or (self.arr[j][i] == 1 and j == self.difficulty - 1):
                     self.cols[i].append(sums)
                     sums = 0
-        print(self.cols)
 
 
 class VerticalNumbers:
@@ -484,7 +494,15 @@ class VerticalNumbers:
         self.surface.fill(self.COLOR_WHITE)
 
     def draw(self):
-        font = pygame.font.SysFont('arial', 25)
+
+        numbers = 0
+        for row in self.rows:
+            if len(row) > numbers:
+                numbers = len(row)
+        font_size = int(100 / numbers)
+        if font_size > 50:
+            font_size = 50
+        font = pygame.font.SysFont('arial', font_size)
 
         wh = 500 / self.difficulty
         for i in range(self.difficulty):
@@ -566,6 +584,7 @@ class Square:
 
     def __init__(self, x, y, filled=0):
         self.filled = filled
+        self.crossed = 0
         self.x = x
         self.y = y
 
@@ -574,6 +593,12 @@ class Square:
 
     def fill(self):
         self.filled = 1
+
+    def is_crossed(self):
+        return self.crossed
+
+    def cross(self):
+        self.crossed = 1
 
 
 Menu()
