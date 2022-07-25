@@ -4,6 +4,12 @@ import sys
 from math import trunc
 
 
+COLOR_WHITE = (255, 255, 255)
+COLOR_TEXT = (250, 250, 250)
+COLOR_RECT = (100, 100, 100)
+COLOR_BLACK = (0, 0, 0)
+
+
 def exit_game():
     pygame.quit()
     sys.exit()
@@ -18,14 +24,16 @@ class Menu:
     bg_image = pygame.transform.scale(bg_image, (605, 700))
 
     small_font = pygame.font.SysFont('Corbel', 25)
-    text_play = small_font.render('Play', True, (200, 200, 200))
-    text_instructions = small_font.render('Instructions', True, (200, 200, 200))
-    text_exit = small_font.render('Exit', True, (200, 200, 200))
+
+    text_play = small_font.render('Play', True, COLOR_TEXT)
+    text_instructions = small_font.render('Instructions', True, COLOR_TEXT)
+    text_exit = small_font.render('Exit', True, COLOR_TEXT)
 
     def __init__(self):
         self.loop()
 
     def loop(self):
+
         while 1:
             mouse = pygame.mouse.get_pos()
 
@@ -41,11 +49,11 @@ class Menu:
                         exit_game()
 
             self.surface.blit(self.bg_image, (0, 0))
-            pygame.draw.rect(self.surface, (100, 100, 100), [250, 200, 100, 30])
+            pygame.draw.rect(self.surface, COLOR_RECT, [250, 200, 100, 30])
             self.surface.blit(self.text_play, (280, 207))
-            pygame.draw.rect(self.surface, (100, 100, 100), [225, 350, 150, 30])
+            pygame.draw.rect(self.surface, COLOR_RECT, [225, 350, 150, 30])
             self.surface.blit(self.text_instructions, (250, 357))
-            pygame.draw.rect(self.surface, (100, 100, 100), [250, 500, 100, 30])
+            pygame.draw.rect(self.surface, COLOR_RECT, [250, 500, 100, 30])
             self.surface.blit(self.text_exit, (280, 507))
 
             pygame.display.update()
@@ -59,10 +67,29 @@ class Instructions:
     bg_image = pygame.transform.scale(bg_image, (605, 700))
 
     small_font = pygame.font.SysFont('Corbel', 25)
-    text = small_font.render('Back', True, (200, 200, 200))
-
     big_font = pygame.font.SysFont('Corbel', 125)
+
+    text_back = small_font.render('Back', True, COLOR_TEXT)
+    text_one = small_font.render('Numbers on the top show how many tiles should be filled', True, COLOR_TEXT)
+    text_two = small_font.render('in a column. Numbers on the left show how many tiles have', True, COLOR_TEXT)
+    text_three = small_font.render('to be filled in a row.', True, COLOR_TEXT)
+    text_four = small_font.render('Use the                button', True, COLOR_TEXT)
+    text_five = small_font.render('to switch between fill', True, COLOR_TEXT)
+    text_six = small_font.render('and cross modes.', True, COLOR_TEXT)
+    text_seven = small_font.render('to go back to the', True, COLOR_TEXT)
+    text_eight = small_font.render('previous window.', True, COLOR_TEXT)
+    text_nine = small_font.render('If all tiles are filled correctly, the result image will be shown', True, COLOR_TEXT)
+    text_ten = small_font.render('If you lose all 3 lives, no image will be displayed', True, COLOR_TEXT)
     text_heading = big_font.render('Instructions', True, (0, 0, 0))
+
+    image_field = pygame.image.load('resources/instructions/field.jpeg')
+    image_field = pygame.transform.scale(image_field, (300, 300))
+    image_fill = pygame.image.load('resources/instructions/fill.jpeg')
+    image_fill = pygame.transform.scale(image_fill, (30, 30))
+    image_cross = pygame.image.load('resources/instructions/cross.jpeg')
+    image_cross = pygame.transform.scale(image_cross, (30, 30))
+    image_back = pygame.image.load('resources/instructions/back.jpeg')
+    image_back = pygame.transform.scale(image_back, (70, 20))
 
     def __init__(self):
         self.loop()
@@ -80,9 +107,30 @@ class Instructions:
                         Menu()
 
             self.surface.blit(self.bg_image, (0, 0))
-            self.surface.blit(self.text_heading, (50, 70))
+            self.surface.blit(self.text_heading, (50, 20))
+
+            self.surface.blit(self.text_one, (50, 120))
+            self.surface.blit(self.text_two, (50, 150))
+            self.surface.blit(self.text_three, (50, 180))
+
+            self.surface.blit(self.image_field, (50, 210))
+
+            self.surface.blit(self.text_four, (365, 270))
+            self.surface.blit(self.image_fill, (430, 265))
+            self.surface.blit(self.image_cross, (470, 265))
+            self.surface.blit(self.text_five, (365, 300))
+            self.surface.blit(self.text_six, (365, 330))
+
+            self.surface.blit(self.text_four, (365, 400))
+            self.surface.blit(self.image_back, (430, 400))
+            self.surface.blit(self.text_seven, (365, 430))
+            self.surface.blit(self.text_eight, (365, 460))
+
+            self.surface.blit(self.text_nine, (50, 540))
+            self.surface.blit(self.text_ten, (50, 570))
+
             pygame.draw.rect(self.surface, (100, 100, 100), [250, 635, 100, 30])
-            self.surface.blit(self.text, (280, 642))
+            self.surface.blit(self.text_back, (280, 642))
 
             pygame.display.flip()
 
@@ -95,10 +143,11 @@ class Difficulties:
     bg_image = pygame.transform.scale(bg_image, (605, 700))
 
     small_font = pygame.font.SysFont('Corbel', 25)
-    text_easy = small_font.render('Easy', True, (200, 200, 200))
-    text_medium = small_font.render('Medium', True, (200, 200, 200))
-    text_hard = small_font.render('Hard', True, (200, 200, 200))
-    text_back = small_font.render('Back', True, (200, 200, 200))
+
+    text_easy = small_font.render('Easy', True, COLOR_TEXT)
+    text_medium = small_font.render('Medium', True, COLOR_TEXT)
+    text_hard = small_font.render('Hard', True, COLOR_TEXT)
+    text_back = small_font.render('Back', True, COLOR_TEXT)
 
     def __init__(self):
         self.loop()
@@ -122,13 +171,13 @@ class Difficulties:
                         Levels(10)
 
             self.surface.blit(self.bg_image, (0, 0))
-            pygame.draw.rect(self.surface, (100, 100, 100), [250, 200, 100, 30])
+            pygame.draw.rect(self.surface, COLOR_RECT, [250, 200, 100, 30])
             self.surface.blit(self.text_easy, (280, 207))
-            pygame.draw.rect(self.surface, (100, 100, 100), [250, 350, 100, 30])
+            pygame.draw.rect(self.surface, COLOR_RECT, [250, 350, 100, 30])
             self.surface.blit(self.text_medium, (265, 357))
-            pygame.draw.rect(self.surface, (100, 100, 100), [250, 500, 100, 30])
+            pygame.draw.rect(self.surface, COLOR_RECT, [250, 500, 100, 30])
             self.surface.blit(self.text_hard, (280, 507))
-            pygame.draw.rect(self.surface, (100, 100, 100), [250, 635, 100, 30])
+            pygame.draw.rect(self.surface, COLOR_RECT, [250, 635, 100, 30])
             self.surface.blit(self.text_back, (280, 642))
 
             pygame.display.flip()
@@ -154,7 +203,6 @@ def get_array(difficulty, level):
         for j in range(len(rows[i])):
             row.append(int(rows[i][j]))
         arr.append(row)
-
     return arr
 
 
@@ -166,7 +214,8 @@ class Levels:
     bg_image = pygame.transform.scale(bg_image, (605, 700))
 
     small_font = pygame.font.SysFont('Corbel', 25)
-    text = small_font.render('Back', True, (200, 200, 200))
+
+    text = small_font.render('Back', True, COLOR_TEXT)
 
     def __init__(self, difficulty):
         self.difficulty = difficulty
@@ -209,23 +258,23 @@ class Levels:
 
             self.surface.blit(self.bg_image, (0, 0))
             # tunnel:
-            pygame.draw.rect(self.surface, (255, 255, 255), [80, 50, 70, 90], 1)
+            pygame.draw.rect(self.surface, COLOR_WHITE, [80, 50, 70, 90], 1)
             # rocks:
-            pygame.draw.rect(self.surface, (255, 255, 255), [530, 120, 50, 50], 1)
+            pygame.draw.rect(self.surface, COLOR_WHITE, [530, 120, 50, 50], 1)
             # house:
-            pygame.draw.rect(self.surface, (255, 255, 255), [5, 300, 80, 115], 1)
+            pygame.draw.rect(self.surface, COLOR_WHITE, [5, 300, 80, 115], 1)
             # tree:
-            pygame.draw.rect(self.surface, (255, 255, 255), [185, 200, 85, 110], 1)
+            pygame.draw.rect(self.surface, COLOR_WHITE, [185, 200, 85, 110], 1)
             # crystal:
-            pygame.draw.rect(self.surface, (255, 255, 255), [440, 315, 55, 70], 1)
+            pygame.draw.rect(self.surface, COLOR_WHITE, [440, 315, 55, 70], 1)
             # statue:
-            pygame.draw.rect(self.surface, (255, 255, 255), [230, 405, 60, 120], 1)
+            pygame.draw.rect(self.surface, COLOR_WHITE, [230, 405, 60, 120], 1)
             # fisher
-            pygame.draw.rect(self.surface, (255, 255, 255), [525, 440, 80, 100], 1)
+            pygame.draw.rect(self.surface, COLOR_WHITE, [525, 440, 80, 100], 1)
             # car:
-            pygame.draw.rect(self.surface, (255, 255, 255), [375, 590, 90, 75], 1)
+            pygame.draw.rect(self.surface, COLOR_WHITE, [375, 590, 90, 75], 1)
 
-            pygame.draw.rect(self.surface, (100, 100, 100), [150, 635, 100, 30])
+            pygame.draw.rect(self.surface, COLOR_RECT, [150, 635, 100, 30])
             self.surface.blit(self.text, (180, 642))
 
             pygame.display.update()
@@ -239,14 +288,13 @@ class Game:
     bg_image = pygame.transform.scale(bg_image, (605, 700))
 
     small_font = pygame.font.SysFont('Corbel', 25)
-    text = small_font.render('Back', True, (200, 200, 200))
-
     big_font = pygame.font.SysFont('Corbel', 125)
+
+    text = small_font.render('Back', True, COLOR_TEXT)
 
     def __init__(self, difficulty, arr, level):
         self.difficulty = difficulty
         self.level = level
-
         self.arr = arr
 
         self.field = Field(self.difficulty, self.arr)
@@ -295,7 +343,7 @@ class Game:
                 txt = self.big_font.render('You Lost :(', True, (0, 0, 0))
                 self.surface.blit(txt, (70, 300))
 
-            pygame.draw.rect(self.surface, (100, 100, 100), [250, 635, 100, 30])
+            pygame.draw.rect(self.surface, COLOR_RECT, [250, 635, 100, 30])
             self.surface.blit(self.text, (280, 642))
 
             pygame.display.flip()
@@ -325,7 +373,7 @@ class Game:
                         if self.compare_squares(self.field.get_squares()):
                             won_lost = True
                             end = False
-                    elif 400 <= mouse[0] <= 450 and 625 <= mouse[1] <= 675:
+                    elif 400 <= mouse[0] <= 440 and 625 <= mouse[1] <= 665:
                         fill = not fill
 
             self.surface.blit(self.bg_image, (0, 0))
@@ -334,16 +382,16 @@ class Game:
             self.surface.blit(self.horizontal.get_surface(), (100, 0))
             self.surface.blit(self.field.get_surface(), (100, 100))
 
-            pygame.draw.rect(self.surface, (100, 100, 100), [150, 635, 100, 30])
+            pygame.draw.rect(self.surface, COLOR_RECT, [150, 635, 100, 30])
             self.surface.blit(self.text, (180, 642))
 
-            pygame.draw.rect(self.surface, (255, 255, 255), [400, 625, 50, 50], 0, 10)
-            pygame.draw.rect(self.surface, (0, 0, 0), [400, 625, 50, 50], 2, 10)
+            pygame.draw.rect(self.surface, COLOR_RECT, [400, 625, 40, 40], 0, 10)
+            pygame.draw.rect(self.surface, COLOR_BLACK, [400, 625, 40, 40], 2, 10)
             if fill:
-                pygame.draw.rect(self.surface, (0, 0, 0), [415, 640, 20, 20])
+                pygame.draw.rect(self.surface, COLOR_BLACK, [410, 635, 20, 20])
             else:
-                pygame.draw.line(self.surface, (0, 0, 0), (415, 640), (435, 660))
-                pygame.draw.line(self.surface, (0, 0, 0), (435, 640), (415, 660))
+                pygame.draw.line(self.surface, COLOR_BLACK, (410, 635), (430, 655), 3)
+                pygame.draw.line(self.surface, COLOR_BLACK, (430, 635), (410, 655), 3)
 
             pygame.display.flip()
             clock.tick(60)
@@ -354,8 +402,7 @@ class Game:
 class Field:
 
     surface = pygame.Surface((500, 500))
-    COLOR_WHITE = (255, 255, 255)
-    COLOR_BLACK = (0, 0, 0)
+
     COLOR_PINK = (251, 92, 125)
 
     def __init__(self, difficulty, arr):
@@ -373,14 +420,14 @@ class Field:
 
     def initialise(self):
         self.surface.set_alpha(200)
-        self.surface.fill(self.COLOR_WHITE)
+        self.surface.fill(COLOR_WHITE)
 
     def draw(self):
         wh = 500 / self.difficulty
         for i in range(self.difficulty):
             for j in range(self.difficulty):
                 rect = pygame.Rect(j * wh, i * wh, wh, wh)
-                pygame.draw.rect(self.surface, self.COLOR_BLACK, rect, 1)
+                pygame.draw.rect(self.surface, COLOR_BLACK, rect, 1)
                 self.squares[i].append(Square(i, j))
                 self.rectangles[i].append(rect)
 
@@ -401,7 +448,7 @@ class Field:
         if fill:
             if self.arr[i][j] == 1:
                 self.squares[i][j].fill()
-                pygame.draw.rect(self.surface, self.COLOR_BLACK, self.rectangles[i][j], 0)
+                pygame.draw.rect(self.surface, COLOR_BLACK, self.rectangles[i][j], 0)
                 return 1
             else:
                 self.squares[i][j].cross()
@@ -413,17 +460,12 @@ class Field:
                 return -1
         else:
             if self.arr[i][j] != 1:
-                '''if self.squares[i][j].is_filled():
-                    return 0
-                self.squares[i][j].fill()
-                pygame.draw.rect(self.surface, self.COLOR_BLACK, self.rectangles[i][j], 0)
-                return 1'''
                 self.squares[i][j].cross()
                 rect = self.rectangles[i][j]
                 left = rect.left
                 top = rect.top
-                pygame.draw.line(self.surface, self.COLOR_BLACK, (left, top), (left + rect.width, top + rect.height), 4)
-                pygame.draw.line(self.surface, self.COLOR_BLACK, (left + rect.width, top), (left, top + rect.height), 4)
+                pygame.draw.line(self.surface, COLOR_BLACK, (left, top), (left + rect.width, top + rect.height), 4)
+                pygame.draw.line(self.surface, COLOR_BLACK, (left + rect.width, top), (left, top + rect.height), 4)
                 return 1
             else:
                 self.squares[i][j].fill()
@@ -434,9 +476,6 @@ class Field:
 class HorizontalNumbers:
 
     surface = pygame.Surface((500, 100))
-    COLOR_WHITE = (255, 255, 255)
-    COLOR_GRAY = (100, 100, 100)
-    COLOR_BLACK = (0, 0, 0)
 
     def __init__(self, difficulty, arr):
         self.difficulty = difficulty
@@ -452,10 +491,9 @@ class HorizontalNumbers:
 
     def initialise(self):
         self.surface.set_alpha(150)
-        self.surface.fill(self.COLOR_WHITE)
+        self.surface.fill(COLOR_WHITE)
 
     def draw(self):
-
         numbers = 0
         for col in self.cols:
             if len(col) > numbers:
@@ -467,7 +505,7 @@ class HorizontalNumbers:
 
         wh = 500 / self.difficulty
         for i in range(self.difficulty):
-            pygame.draw.line(self.surface, self.COLOR_GRAY, (i * wh, 0), (i * wh, 100), 1)
+            pygame.draw.line(self.surface, COLOR_RECT, (i * wh, 0), (i * wh, 100), 1)
 
             text = []
             for num in self.cols[i]:
@@ -475,11 +513,11 @@ class HorizontalNumbers:
             leftover = (100 - font_size * numbers) / (numbers + 1)
             y = leftover
             for line in text:
-                number = font.render(line, True, self.COLOR_BLACK)
+                number = font.render(line, True, COLOR_BLACK)
                 self.surface.blit(number, (i * wh + wh / 2 - font_size / 3, y))
                 y += leftover + font_size
 
-        pygame.draw.line(self.surface, self.COLOR_GRAY, (499, 0), (499, 100), 1)
+        pygame.draw.line(self.surface, COLOR_RECT, (499, 0), (499, 100), 1)
 
     def get_surface(self):
         return self.surface
@@ -498,9 +536,6 @@ class HorizontalNumbers:
 class VerticalNumbers:
 
     surface = pygame.Surface((100, 500))
-    COLOR_WHITE = (255, 255, 255)
-    COLOR_GRAY = (100, 100, 100)
-    COLOR_BLACK = (0, 0, 0)
 
     def __init__(self, difficulty, arr):
         self.difficulty = difficulty
@@ -516,10 +551,9 @@ class VerticalNumbers:
 
     def initialise(self):
         self.surface.set_alpha(150)
-        self.surface.fill(self.COLOR_WHITE)
+        self.surface.fill(COLOR_WHITE)
 
     def draw(self):
-
         numbers = 0
         for row in self.rows:
             if len(row) > numbers:
@@ -531,15 +565,15 @@ class VerticalNumbers:
 
         wh = 500 / self.difficulty
         for i in range(self.difficulty):
-            pygame.draw.line(self.surface, self.COLOR_GRAY, (0, i * wh), (100, i * wh), 1)
+            pygame.draw.line(self.surface, COLOR_RECT, (0, i * wh), (100, i * wh), 1)
 
             text = " "
             for num in self.rows[i]:
                 text += str(num) + " "
-            numbers = font.render(text, True, self.COLOR_BLACK)
+            numbers = font.render(text, True, COLOR_BLACK)
             self.surface.blit(numbers, (10, i*wh + wh/2 - 10))
 
-        pygame.draw.line(self.surface, self.COLOR_GRAY, (0, 499), (100, 499), 1)
+        pygame.draw.line(self.surface, COLOR_RECT, (0, 499), (100, 499), 1)
 
     def get_surface(self):
         return self.surface
@@ -558,15 +592,14 @@ class VerticalNumbers:
 class ScoreBoard:
 
     surface = pygame.Surface((100, 100))
-    COLOR_WHITE = (255, 255, 255)
-    COLOR_BLACK = (0, 0, 0)
+
     COLOR_GREEN = (0, 255, 0)
     COLOR_RED = (255, 0, 0)
+
     small_font = pygame.font.SysFont('Corbel', 25)
 
     def __init__(self, difficulty):
         self.difficulty = difficulty
-
         self.score = 0
         self.lives = 3
 
@@ -575,15 +608,15 @@ class ScoreBoard:
 
     def initialise(self):
         self.surface.set_alpha(150)
-        self.surface.fill(self.COLOR_WHITE)
+        self.surface.fill(COLOR_WHITE)
 
     def draw(self):
-        text1 = self.small_font.render('Score: ', True, self.COLOR_BLACK)
+        text1 = self.small_font.render('Score: ', True, COLOR_BLACK)
         self.surface.blit(text1, (10, 25))
         value1 = self.small_font.render(str(self.score), True, self.COLOR_GREEN)
         self.surface.blit(value1, (65, 25))
 
-        text2 = self.small_font.render('Lives: ', True, self.COLOR_BLACK)
+        text2 = self.small_font.render('Lives: ', True, COLOR_BLACK)
         self.surface.blit(text2, (10, 53))
         value2 = self.small_font.render(str(self.lives), True, self.COLOR_RED)
         self.surface.blit(value2, (65, 53))
@@ -593,14 +626,14 @@ class ScoreBoard:
 
     def correct(self):
         self.score += 10
-        self.surface.fill(self.COLOR_WHITE)
+        self.surface.fill(COLOR_WHITE)
         self.draw()
 
     def incorrect(self):
         if self.score >= 10:
             self.score -= 10
         self.lives -= 1
-        self.surface.fill(self.COLOR_WHITE)
+        self.surface.fill(COLOR_WHITE)
         self.draw()
         return self.lives
 
