@@ -10,6 +10,12 @@ COLOR_RECT = (100, 100, 100)
 COLOR_BLACK = (0, 0, 0)
 
 
+def write_data(data=""):
+    file = open("data.txt", "a")
+    file.write(data)
+    file.close()
+
+
 def exit_game():
     pygame.quit()
     sys.exit()
@@ -353,15 +359,17 @@ class Game:
 
         fill = True
         end = True
-        won_lost = False
+        won = False
         while end:
             mouse = pygame.mouse.get_pos()
 
             for event in pygame.event.get():
                 if event.type == QUIT:
+                    write_data(self.get_data())
                     exit_game()
                 if event.type == MOUSEBUTTONDOWN:
                     if 150 <= mouse[0] <= 250 and 635 <= mouse[1] <= 665:
+                        write_data(self.get_data())
                         Menu()
                     elif 100 <= mouse[0] <= 600 and 100 <= mouse[1] <= 600:
                         handle = self.field.handle_mouse(mouse, fill)
@@ -371,7 +379,7 @@ class Game:
                             if self.score.incorrect() == -1:
                                 end = False
                         if self.compare_squares(self.field.get_squares()):
-                            won_lost = True
+                            won = True
                             end = False
                     elif 400 <= mouse[0] <= 440 and 625 <= mouse[1] <= 665:
                         fill = not fill
@@ -396,7 +404,22 @@ class Game:
             pygame.display.flip()
             clock.tick(60)
 
-        self.end(won_lost)
+        data = self.get_data()
+        data = data.rstrip(data[-1])
+        write_data(data + ":" + str(won) + "\n")
+        self.end(won)
+
+    def get_data(self):
+        data = self.field.get_data()
+        result = str(self.difficulty) + ":" + str(self.level) + ":"
+        for i in range(len(data)):
+            r = ""
+            for j in range(len(data[i])):
+                r += str(data[i][j])
+            result += r + " "
+        result = result.rstrip(result[-1])
+        result += ":" + str(self.score.get_score()) + ":" + str(self.score.get_lives()) + "\n"
+        return result
 
 
 class Field:
@@ -414,6 +437,13 @@ class Field:
             self.squares.append([])
             self.rectangles.append([])
         self.arr = arr
+
+        self.data = []
+        for i in range(self.difficulty):
+            data = []
+            for j in range(self.difficulty):
+                data.append(0)
+            self.data.append(data)
 
         self.initialise()
         self.draw()
@@ -437,6 +467,9 @@ class Field:
     def get_squares(self):
         return self.squares
 
+    def get_data(self):
+        return self.data
+
     def handle_mouse(self, mouse, fill):
         wh = 500 / self.difficulty
 
@@ -446,11 +479,15 @@ class Field:
         if self.squares[i][j].is_filled() or self.squares[i][j].is_crossed():
             return 0
         if fill:
+            # Correct fill (black square)
             if self.arr[i][j] == 1:
+                self.data[i][j] = 1
                 self.squares[i][j].fill()
                 pygame.draw.rect(self.surface, COLOR_BLACK, self.rectangles[i][j], 0)
                 return 1
+            # Incorrect fill (pink cross)
             else:
+                self.data[i][j] = 2
                 self.squares[i][j].cross()
                 rect = self.rectangles[i][j]
                 left = rect.left
@@ -459,7 +496,9 @@ class Field:
                 pygame.draw.line(self.surface, self.COLOR_PINK, (left + rect.width, top), (left, top + rect.height), 4)
                 return -1
         else:
+            # Correct cross (black cross)
             if self.arr[i][j] != 1:
+                self.data[i][j] = 3
                 self.squares[i][j].cross()
                 rect = self.rectangles[i][j]
                 left = rect.left
@@ -467,7 +506,9 @@ class Field:
                 pygame.draw.line(self.surface, COLOR_BLACK, (left, top), (left + rect.width, top + rect.height), 4)
                 pygame.draw.line(self.surface, COLOR_BLACK, (left + rect.width, top), (left, top + rect.height), 4)
                 return 1
+            # Incorrect cross (pink square)
             else:
+                self.data[i][j] = 4
                 self.squares[i][j].fill()
                 pygame.draw.rect(self.surface, self.COLOR_PINK, self.rectangles[i][j], 0)
                 return -1
@@ -623,6 +664,12 @@ class ScoreBoard:
 
     def get_surface(self):
         return self.surface
+
+    def get_score(self):
+        return self.score
+
+    def get_lives(self):
+        return self.lives
 
     def correct(self):
         self.score += 10
