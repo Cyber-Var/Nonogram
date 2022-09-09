@@ -571,7 +571,7 @@ class VerticalNumbers:
             for num in self.rows[i]:
                 text += str(num) + " "
             numbers = font.render(text, True, COLOR_BLACK)
-            self.surface.blit(numbers, (10, i*wh + wh/2 - 10))
+            self.surface.blit(numbers, (10, i*wh + wh/2 - 2 * self.difficulty))
 
         pygame.draw.line(self.surface, COLOR_RECT, (0, 499), (100, 499), 1)
 
@@ -657,6 +657,5 @@ class Square:
 
     def cross(self):
         self.crossed = 1
-
 
 Menu()
