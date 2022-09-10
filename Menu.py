@@ -2,6 +2,7 @@ import pygame
 from pygame.locals import *
 import sys
 from math import trunc
+import os.path
 
 
 COLOR_WHITE = (255, 255, 255)
@@ -298,16 +299,38 @@ class Game:
 
     text = small_font.render('Back', True, COLOR_TEXT)
 
+    # file_data = {}
+    old_data = []
+
     def __init__(self, difficulty, arr, level):
         self.difficulty = difficulty
         self.level = level
         self.arr = arr
 
-        self.field = Field(self.difficulty, self.arr)
-        self.horizontal = HorizontalNumbers(self.difficulty, self.arr)
-        self.vertical = VerticalNumbers(self.difficulty, self.arr)
-        self.score = ScoreBoard(self.difficulty)
+        file_line = ""
+        if os.path.isfile("data.txt"):
+            data = open("data.txt", "r")
 
+            for line in data.readlines():
+                line_arr = line.split(":")
+                if int(line_arr[0]) == self.difficulty and int(line_arr[1]) == self.level:
+                    file_line = line
+                '''key = line_arr[0] + ":" + line_arr[1]
+                value = line.split(key, 1)[1]
+                value = value[1: len(value) - 1]
+                self.file_data[key] = value'''
+        self.old_data = file_line.split(":")
+
+        if len(self.old_data) == 0 or len(self.old_data) >= 6:
+            self.field = Field(self.difficulty, self.arr)
+            self.horizontal = HorizontalNumbers(self.difficulty, self.arr)
+            self.vertical = VerticalNumbers(self.difficulty, self.arr)
+            self.score = ScoreBoard(self.difficulty)
+        else:
+            self.field = Field(self.difficulty, self.arr, self.old_data[2])
+            self.horizontal = HorizontalNumbers(self.difficulty, self.arr)
+            self.vertical = VerticalNumbers(self.difficulty, self.arr)
+            self.score = ScoreBoard(self.difficulty, self.old_data[3], self.old_data[4])
         self.loop()
 
     def compare_squares(self, squares):
@@ -428,7 +451,7 @@ class Field:
 
     COLOR_PINK = (251, 92, 125)
 
-    def __init__(self, difficulty, arr):
+    def __init__(self, difficulty, arr, old_data=""):
         self.difficulty = difficulty
 
         self.squares = []
@@ -439,10 +462,12 @@ class Field:
         self.arr = arr
 
         self.data = []
+        old_data_arr = old_data.split(" ")
         for i in range(self.difficulty):
             data = []
+            old_data_arr1 = [*old_data_arr[i]]
             for j in range(self.difficulty):
-                data.append(0)
+                data.append(old_data_arr1[j])
             self.data.append(data)
 
         self.initialise()
@@ -639,7 +664,7 @@ class ScoreBoard:
 
     small_font = pygame.font.SysFont('Corbel', 25)
 
-    def __init__(self, difficulty):
+    def __init__(self, difficulty, old_score="", old_lives=""):
         self.difficulty = difficulty
         self.score = 0
         self.lives = 3
