@@ -24,13 +24,18 @@ def write_data(data=""):
                 write_file.write(line)
 
         read_file.close()
+        os.remove("data.txt")
         write_file.close()
+        os.rename("data1.txt", "data.txt")
     if len(data_arr) == 6:
-        file = open("scores.txt", "a")
+        if data_arr[5] == "True\n":
+            file = open("scores.txt", "a")
+            file.write(data_arr[3] + ":" + data_arr[4] + "\n")
+            file.close()
     else:
         file = open("data.txt", "a")
-    file.write(data)
-    file.close()
+        file.write(data)
+        file.close()
 
 
 def exit_game():
@@ -49,11 +54,23 @@ class Menu:
     small_font = pygame.font.SysFont('Corbel', 25)
 
     text_play = small_font.render('Play', True, COLOR_TEXT)
+    text_record = small_font.render('View Record', True, COLOR_TEXT)
     text_instructions = small_font.render('Instructions', True, COLOR_TEXT)
     text_exit = small_font.render('Exit', True, COLOR_TEXT)
 
+    record = 0
+
     def __init__(self):
+        self.count_record()
         self.loop()
+
+    def count_record(self):
+        if os.path.isfile("scores.txt"):
+            file = open("scores.txt", "r")
+            file_lines = file.readlines()
+            for line in file_lines:
+                line_arr = line.split(":")
+                self.record += int(line_arr[0]) + 20 * int(line_arr[1])
 
     def loop(self):
 
@@ -64,20 +81,24 @@ class Menu:
                 if event.type == QUIT:
                     exit_game()
                 if event.type == MOUSEBUTTONDOWN:
-                    if 250 <= mouse[0] <= 350 and 200 <= mouse[1] <= 230:
+                    if 250 <= mouse[0] <= 350 and 100 <= mouse[1] <= 130:
                         Difficulties()
-                    elif 225 <= mouse[0] <= 375 and 350 <= mouse[1] <= 380:
+                    elif 225 <= mouse[0] <= 375 and 250 <= mouse[1] <= 280:
+                        self.text_record = self.small_font.render("Record: " + str(self.record), True, COLOR_TEXT)
+                    elif 225 <= mouse[0] <= 400 and 350 <= mouse[1] <= 430:
                         Instructions()
-                    elif 250 <= mouse[0] <= 350 and 500 <= mouse[1] <= 530:
+                    elif 250 <= mouse[0] <= 550 and 500 <= mouse[1] <= 580:
                         exit_game()
 
             self.surface.blit(self.bg_image, (0, 0))
-            pygame.draw.rect(self.surface, COLOR_RECT, [250, 200, 100, 30])
-            self.surface.blit(self.text_play, (280, 207))
-            pygame.draw.rect(self.surface, COLOR_RECT, [225, 350, 150, 30])
-            self.surface.blit(self.text_instructions, (250, 357))
-            pygame.draw.rect(self.surface, COLOR_RECT, [250, 500, 100, 30])
-            self.surface.blit(self.text_exit, (280, 507))
+            pygame.draw.rect(self.surface, COLOR_RECT, [250, 100, 100, 30])
+            self.surface.blit(self.text_play, (280, 107))
+            pygame.draw.rect(self.surface, COLOR_RECT, [225, 250, 150, 30])
+            self.surface.blit(self.text_record, (250, 257))
+            pygame.draw.rect(self.surface, COLOR_RECT, [225, 400, 150, 30])
+            self.surface.blit(self.text_instructions, (250, 407))
+            pygame.draw.rect(self.surface, COLOR_RECT, [250, 550, 100, 30])
+            self.surface.blit(self.text_exit, (280, 557))
 
             pygame.display.update()
 
@@ -336,7 +357,6 @@ class Game:
                 value = value[1: len(value)]
                 self.file_data[key] = value
 
-            print(self.file_data)
             file = open("data.txt", "w")
             everything = ""
             for key in self.file_data:
