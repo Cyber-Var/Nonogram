@@ -12,7 +12,23 @@ COLOR_BLACK = (0, 0, 0)
 
 
 def write_data(data=""):
-    file = open("data.txt", "a")
+    data_arr = data.split(":")
+    if len(data_arr) >= 2:
+        read_file = open("data.txt", "r")
+        read_file_lines = read_file.readlines()
+        write_file = open("data1.txt", "w")
+
+        for line in read_file_lines:
+            line_arr = line.split(":")
+            if line_arr[0] != data_arr[0] or line_arr[1] != data_arr[1]:
+                write_file.write(line)
+
+        read_file.close()
+        write_file.close()
+    if len(data_arr) == 6:
+        file = open("scores.txt", "a")
+    else:
+        file = open("data.txt", "a")
     file.write(data)
     file.close()
 
@@ -299,7 +315,7 @@ class Game:
 
     text = small_font.render('Back', True, COLOR_TEXT)
 
-    # file_data = {}
+    file_data = {}
     old_data = []
 
     def __init__(self, difficulty, arr, level):
@@ -315,13 +331,24 @@ class Game:
                 line_arr = line.split(":")
                 if int(line_arr[0]) == self.difficulty and int(line_arr[1]) == self.level:
                     file_line = line
-                '''key = line_arr[0] + ":" + line_arr[1]
+                key = line_arr[0] + ":" + line_arr[1]
                 value = line.split(key, 1)[1]
-                value = value[1: len(value) - 1]
-                self.file_data[key] = value'''
+                value = value[1: len(value)]
+                self.file_data[key] = value
+
+            print(self.file_data)
+            file = open("data.txt", "w")
+            everything = ""
+            for key in self.file_data:
+                file.write(key + ":" + self.file_data[key])
+                everything += self.file_data[key]
+            file.close()
+
+            data.close()
+
         self.old_data = file_line.split(":")
 
-        if len(self.old_data) == 0 or len(self.old_data) >= 6:
+        if len(self.old_data) != 5:
             self.field = Field(self.difficulty, self.arr)
             self.horizontal = HorizontalNumbers(self.difficulty, self.arr)
             self.vertical = VerticalNumbers(self.difficulty, self.arr)
@@ -461,13 +488,21 @@ class Field:
             self.rectangles.append([])
         self.arr = arr
 
+        if old_data == "":
+            for i in range(self.difficulty):
+                o_d = ""
+                for j in range(self.difficulty):
+                    o_d += "0"
+                old_data += o_d + " "
+            old_data = old_data.rstrip(old_data[-1])
+
         self.data = []
         old_data_arr = old_data.split(" ")
-        for i in range(self.difficulty):
+        for i in range(len(old_data_arr)):
             data = []
             old_data_arr1 = [*old_data_arr[i]]
-            for j in range(self.difficulty):
-                data.append(old_data_arr1[j])
+            for j in range(len(old_data_arr1)):
+                data.append(int(old_data_arr1[j]))
             self.data.append(data)
 
         self.initialise()
@@ -485,6 +520,31 @@ class Field:
                 pygame.draw.rect(self.surface, COLOR_BLACK, rect, 1)
                 self.squares[i].append(Square(i, j))
                 self.rectangles[i].append(rect)
+
+        for i in range(len(self.data)):
+            for j in range(len(self.data[i])):
+                if self.data[i][j] == 1:
+                    self.squares[i][j].fill()
+                    pygame.draw.rect(self.surface, COLOR_BLACK, self.rectangles[i][j], 0)
+                elif self.data[i][j] == 2:
+                    self.squares[i][j].cross()
+                    rect = self.rectangles[i][j]
+                    left = rect.left
+                    top = rect.top
+                    pygame.draw.line(self.surface, self.COLOR_PINK, (left, top), (left + rect.width, top + rect.height),
+                                     4)
+                    pygame.draw.line(self.surface, self.COLOR_PINK, (left + rect.width, top), (left, top + rect.height),
+                                     4)
+                elif self.data[i][j] == 3:
+                    self.squares[i][j].cross()
+                    rect = self.rectangles[i][j]
+                    left = rect.left
+                    top = rect.top
+                    pygame.draw.line(self.surface, COLOR_BLACK, (left, top), (left + rect.width, top + rect.height), 4)
+                    pygame.draw.line(self.surface, COLOR_BLACK, (left + rect.width, top), (left, top + rect.height), 4)
+                elif self.data[i][j] == 4:
+                    self.squares[i][j].fill()
+                    pygame.draw.rect(self.surface, self.COLOR_PINK, self.rectangles[i][j], 0)
 
     def get_surface(self):
         return self.surface
@@ -664,10 +724,10 @@ class ScoreBoard:
 
     small_font = pygame.font.SysFont('Corbel', 25)
 
-    def __init__(self, difficulty, old_score="", old_lives=""):
+    def __init__(self, difficulty, old_score="0", old_lives="3"):
         self.difficulty = difficulty
-        self.score = 0
-        self.lives = 3
+        self.score = int(old_score)
+        self.lives = int(old_lives)
 
         self.initialise()
         self.draw()
