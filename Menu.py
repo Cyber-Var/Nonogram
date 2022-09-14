@@ -59,9 +59,13 @@ class Menu:
     text_add = small_font.render('Add Level', True, COLOR_TEXT)
     text_exit = small_font.render('Exit', True, COLOR_TEXT)
 
+    text_entry = small_font.render("", True, COLOR_RECT)
+
     record = 0
 
     def __init__(self):
+        self.insert = ""
+        self.active = False
         self.count_record()
         self.loop()
 
@@ -89,9 +93,23 @@ class Menu:
                     elif 225 <= mouse[0] <= 375 and 300 <= mouse[1] <= 330:
                         Instructions()
                     elif 250 <= mouse[0] <= 350 and 400 <= mouse[1] <= 430:
-                        Add(5)
+                        self.active = True
+                        self.text_add = self.small_font.render("Difficulty:", True, COLOR_TEXT)
+                        pygame.draw.rect(self.surface, COLOR_RECT, [350, 400, 50, 30], 2)
                     elif 250 <= mouse[0] <= 350 and 500 <= mouse[1] <= 530:
                         exit_game()
+                if event.type == pygame.KEYDOWN:
+                    if self.active:
+                        if event.key == pygame.K_RETURN:
+                            if self.insert.isdigit():
+                                if int(self.insert) <= 25:
+                                    Add(self.insert)
+                            self.insert = ''
+                        elif event.key == pygame.K_BACKSPACE:
+                            self.insert = self.insert[:-1]
+                        else:
+                            self.insert += event.unicode
+                        self.text_entry = self.small_font.render(self.insert, True, COLOR_RECT)
 
             self.surface.blit(self.bg_image, (0, 0))
             pygame.draw.rect(self.surface, COLOR_RECT, [250, 100, 100, 30])
@@ -105,6 +123,10 @@ class Menu:
             pygame.draw.rect(self.surface, COLOR_RECT, [250, 500, 100, 30])
             self.surface.blit(self.text_exit, (280, 507))
 
+            if self.active:
+                self.surface.blit(self.text_entry, (355, 407))
+                pygame.draw.rect(self.surface, COLOR_RECT, [350, 400, 50, 30], 2)
+
             pygame.display.update()
 
 
@@ -113,6 +135,10 @@ class Add:
 
     bg_image = pygame.image.load('resources/backgrounds/add_background.jpeg')
     bg_image = pygame.transform.scale(bg_image, (605, 700))
+
+    small_font = pygame.font.SysFont('Corbel', 25)
+
+    text_back = small_font.render('Back', True, COLOR_TEXT)
 
     def __init__(self, difficulty):
         self.difficulty = difficulty
@@ -127,8 +153,13 @@ class Add:
             for event in pygame.event.get():
                 if event.type == QUIT:
                     exit_game()
+                if event.type == MOUSEBUTTONDOWN:
+                    if 250 <= mouse[0] <= 350 and 635 <= mouse[1] <= 665:
+                        Menu()
 
             self.surface.blit(self.bg_image, (0, 0))
+            pygame.draw.rect(self.surface, COLOR_RECT, [250, 635, 100, 30])
+            self.surface.blit(self.text_back, (280, 642))
 
             pygame.display.flip()
 
@@ -839,5 +870,6 @@ class Square:
 
     def cross(self):
         self.crossed = 1
+
 
 Menu()
