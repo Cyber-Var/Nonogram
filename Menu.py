@@ -142,6 +142,7 @@ class Add:
     small_font = pygame.font.SysFont('Corbel', 25)
 
     text_back = small_font.render('Back', True, COLOR_TEXT)
+    text_save = small_font.render('Save', True, COLOR_TEXT)
 
     def __init__(self, difficulty):
         self.difficulty = int(difficulty)
@@ -170,20 +171,24 @@ class Add:
                 if event.type == QUIT:
                     exit_game()
                 if event.type == MOUSEBUTTONDOWN:
-                    if 250 <= mouse[0] <= 350 and 635 <= mouse[1] <= 665:
-                        Menu()
-                    elif 100 <= mouse[0] <= 600 and 100 <= mouse[1] <= 600:
+                    if 100 <= mouse[0] <= 600 and 100 <= mouse[1] <= 600:
                         if self.field.handle_mouse(mouse, True):
-                            self.horizontal.handle_add()
-                            self.vertical.handle_add()
+                            self.horizontal.handle_add(self.field.get_data())
+                            self.vertical.handle_add(self.field.get_data())
                         else:
-                            self.horizontal.handle_add(False)
-                            self.vertical.handle_add(False)
-
+                            self.horizontal.handle_add(self.field.get_data())
+                            self.vertical.handle_add(self.field.get_data())
+                    elif 150 <= mouse[0] <= 250 and 635 <= mouse[1] <= 665:
+                        Menu()
+                    elif 350 <= mouse[0] <= 450 and 635 <= mouse[1] <= 665:
+                        self.save_data()
+                        Menu()
 
             self.surface.blit(self.bg_image, (0, 0))
-            pygame.draw.rect(self.surface, COLOR_RECT, [250, 635, 100, 30])
-            self.surface.blit(self.text_back, (280, 642))
+            pygame.draw.rect(self.surface, COLOR_RECT, [150, 635, 100, 30])
+            self.surface.blit(self.text_back, (180, 642))
+            pygame.draw.rect(self.surface, COLOR_RECT, [350, 635, 100, 30])
+            self.surface.blit(self.text_save, (380, 642))
 
             self.surface.blit(self.score.get_surface(), (0, 0))
             self.surface.blit(self.vertical.get_surface(), (0, 100))
@@ -192,6 +197,22 @@ class Add:
 
             pygame.display.flip()
             clock.tick(60)
+
+    def save_data(self):
+        data = self.field.get_data()
+        data_str = ""
+        for i in range(self.difficulty):
+            s = ""
+            for j in range(self.difficulty):
+                s += str(data[i][j])
+            data_str += s + " "
+        data_str = data_str[:-1]
+        data_str += "\n"
+
+        filename = "arrays/" + str(self.difficulty) + ".txt"
+        file = open(filename, "a")
+        file.write(data_str)
+        file.close()
 
 
 class Instructions:
@@ -321,12 +342,7 @@ class Difficulties:
 def get_array(difficulty, level):
     arr = []
 
-    filename = "arrays/hard.txt"
-    if difficulty == 6:
-        filename = "arrays/easy.txt"
-    elif difficulty == 8:
-        filename = "arrays/medium.txt"
-
+    filename = "arrays/" + str(difficulty) + ".txt"
     file = open(filename, 'r')
     lines = file.readlines()
     line = lines[level]
@@ -676,11 +692,13 @@ class Field:
 
         if self.add:
             if self.squares[i][j].is_filled():
+                self.data[i][j] = 0
                 self.squares[i][j].fill(0)
                 pygame.draw.rect(self.surface, COLOR_WHITE, self.rectangles[i][j], 0)
                 pygame.draw.rect(self.surface, COLOR_BLACK, self.rectangles[i][j], 1)
                 return 0
             else:
+                self.data[i][j] = 1
                 self.squares[i][j].fill()
                 pygame.draw.rect(self.surface, COLOR_BLACK, self.rectangles[i][j], 0)
                 return 1
@@ -753,16 +771,17 @@ class HorizontalNumbers:
         pygame.draw.line(self.surface, COLOR_RECT, (499, 0), (499, 100), 1)
 
     def draw(self):
+        wh = 500 / self.difficulty
+
         numbers = 0
         for col in self.cols:
             if len(col) > numbers:
                 numbers = len(col)
-        font_size = int(100 / numbers) - 5
-        if font_size > 45:
-            font_size = 45
-        font = pygame.font.SysFont('arial', font_size)
+        font_size = int(100 / numbers)
+        if font_size > wh:
+            font_size = wh
+        font = pygame.font.SysFont('arial', int(font_size))
 
-        wh = 500 / self.difficulty
         for i in range(self.difficulty):
             pygame.draw.line(self.surface, COLOR_RECT, (i * wh, 0), (i * wh, 100), 1)
 
@@ -773,7 +792,7 @@ class HorizontalNumbers:
             y = leftover
             for line in text:
                 number = font.render(line, True, COLOR_BLACK)
-                self.surface.blit(number, (i * wh + wh / 2 - font_size / 3, y))
+                self.surface.blit(number, (i*wh + (wh-font_size) / 2, y))
                 y += leftover + font_size
 
         pygame.draw.line(self.surface, COLOR_RECT, (499, 0), (499, 100), 1)
@@ -783,7 +802,9 @@ class HorizontalNumbers:
 
     def set_cols(self):
         sums = 0
+
         for i in range(self.difficulty):
+            self.cols[i] = []
             for j in range(self.difficulty):
                 if self.arr[j][i] == 1:
                     sums += 1
@@ -791,8 +812,11 @@ class HorizontalNumbers:
                     self.cols[i].append(sums)
                     sums = 0
 
-    def handle_add(self, add=True):
-        pass
+    def handle_add(self, data):
+        self.arr = data
+        self.set_cols()
+        self.surface.fill(COLOR_WHITE)
+        self.draw()
 
 
 class VerticalNumbers:
@@ -825,16 +849,17 @@ class VerticalNumbers:
         pygame.draw.line(self.surface, COLOR_RECT, (0, 499), (100, 499), 1)
 
     def draw(self):
+        wh = 500 / self.difficulty
+
         numbers = 0
         for row in self.rows:
             if len(row) > numbers:
                 numbers = len(row)
         font_size = int(100 / numbers)
-        if font_size > 50:
-            font_size = 50
-        font = pygame.font.SysFont('arial', font_size)
+        if font_size > wh:
+            font_size = wh
+        font = pygame.font.SysFont('arial', int(font_size))
 
-        wh = 500 / self.difficulty
         for i in range(self.difficulty):
             pygame.draw.line(self.surface, COLOR_RECT, (0, i * wh), (100, i * wh), 1)
 
@@ -842,7 +867,7 @@ class VerticalNumbers:
             for num in self.rows[i]:
                 text += str(num) + " "
             numbers = font.render(text, True, COLOR_BLACK)
-            self.surface.blit(numbers, (10, i*wh + wh/2 - 2 * self.difficulty))
+            self.surface.blit(numbers, (10, i*wh + (wh-font_size) / 2))
 
         pygame.draw.line(self.surface, COLOR_RECT, (0, 499), (100, 499), 1)
 
@@ -852,6 +877,7 @@ class VerticalNumbers:
     def set_rows(self):
         sums = 0
         for i in range(self.difficulty):
+            self.rows[i] = []
             for j in range(self.difficulty):
                 if self.arr[i][j] == 1:
                     sums += 1
@@ -859,8 +885,11 @@ class VerticalNumbers:
                     self.rows[i].append(sums)
                     sums = 0
 
-    def handle_add(self, add=True):
-        pass
+    def handle_add(self, data):
+        self.arr = data
+        self.set_rows()
+        self.surface.fill(COLOR_WHITE)
+        self.draw()
 
 
 class ScoreBoard:
