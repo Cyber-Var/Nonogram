@@ -12,36 +12,6 @@ COLOR_RECT = (100, 100, 100)
 COLOR_BLACK = (0, 0, 0)
 COLOR_RED = (255, 0, 0)
 
-USERNAME = ""
-PASSWORD = ""
-
-
-def write_data(data=""):
-    data_arr = data.split(":")
-    if len(data_arr) >= 2:
-        read_file = open("data/data.txt", "r")
-        read_file_lines = read_file.readlines()
-        write_file = open("data1.txt", "w")
-
-        for line in read_file_lines:
-            line_arr = line.split(":")
-            if line_arr[0] != data_arr[0] or line_arr[1] != data_arr[1]:
-                write_file.write(line)
-
-        read_file.close()
-        os.remove("data/data.txt")
-        write_file.close()
-        os.rename("data1.txt", "data/data.txt")
-    if len(data_arr) == 6:
-        if data_arr[5] == "True\n":
-            file = open("data/scores.txt", "a")
-            file.write(data_arr[3] + ":" + data_arr[4] + "\n")
-            file.close()
-    else:
-        file = open("data/data.txt", "a")
-        file.write(data)
-        file.close()
-
 
 def exit_game():
     pygame.quit()
@@ -91,9 +61,7 @@ class Login:
     def sign_in(self):
         if self.username in self.dict:
             if self.dict[self.username] == self.password:
-                USERNAME = self.username
-                PASSWORD = self.password
-                Menu()
+                Menu(self.username)
         else:
             self.invalid = True
             self.username = ""
@@ -102,8 +70,6 @@ class Login:
             self.text_entry_password = self.small_font.render("Invalid", True, COLOR_RED)
 
     def register(self):
-        USERNAME = self.username
-        PASSWORD = self.password
         if self.username in self.dict:
             self.invalid = True
             self.username = ""
@@ -115,7 +81,11 @@ class Login:
             js = json.dumps(self.dict)
             file.write(js)
             file.close()
-            Menu()
+
+            open("data/" + self.username + ".txt", "w")
+            with open("scores/" + self.username + "_score.txt", "w") as file:
+                file.write("0")
+            Menu(self.username)
 
     def loop(self):
 
@@ -199,25 +169,25 @@ class Menu:
     text_record = small_font.render('View Record', True, COLOR_TEXT)
     text_instructions = small_font.render('Instructions', True, COLOR_TEXT)
     text_add = small_font.render('Add Level', True, COLOR_TEXT)
-    text_exit = small_font.render('Exit', True, COLOR_TEXT)
+    text_back = small_font.render('Back', True, COLOR_TEXT)
 
     text_entry = small_font.render("", True, COLOR_RECT)
 
     record = 0
 
-    def __init__(self):
+    def __init__(self, username):
+        self.username = username
         self.insert = ""
         self.active = False
         self.count_record()
         self.loop()
 
     def count_record(self):
-        if os.path.isfile("data/scores.txt"):
-            file = open("data/scores.txt", "r")
+        filename = "scores/" + self.username + "_score.txt"
+        if os.path.isfile(filename):
+            file = open(filename, "r")
             file_lines = file.readlines()
-            for line in file_lines:
-                line_arr = line.split(":")
-                self.record += int(line_arr[0]) + 20 * int(line_arr[1])
+            self.record = int(file_lines[0])
 
     def loop(self):
 
@@ -226,26 +196,26 @@ class Menu:
 
             for event in pygame.event.get():
                 if event.type == QUIT:
-                    exit_game()
+                    Login()
                 if event.type == MOUSEBUTTONDOWN:
                     if 250 <= mouse[0] <= 350 and 100 <= mouse[1] <= 130:
-                        Difficulties()
+                        Difficulties(self.username)
                     elif 225 <= mouse[0] <= 375 and 200 <= mouse[1] <= 230:
-                        self.text_record = self.small_font.render("Record: " + str(self.record), True, COLOR_TEXT)
+                        Leader(self.username, self.record)
                     elif 225 <= mouse[0] <= 375 and 300 <= mouse[1] <= 330:
-                        Instructions()
+                        Instructions(self.username)
                     elif 250 <= mouse[0] <= 350 and 400 <= mouse[1] <= 430:
                         self.active = True
                         self.text_add = self.small_font.render("Difficulty:", True, COLOR_TEXT)
                         pygame.draw.rect(self.surface, COLOR_RECT, [350, 400, 50, 30], 2)
                     elif 250 <= mouse[0] <= 350 and 500 <= mouse[1] <= 530:
-                        exit_game()
+                        Login()
                 if event.type == pygame.KEYDOWN:
                     if self.active:
                         if event.key == pygame.K_RETURN:
                             if self.insert.isdigit():
                                 if int(self.insert) <= 25:
-                                    Add(self.insert)
+                                    Add(self.username, self.insert)
                             self.insert = ''
                         elif event.key == pygame.K_BACKSPACE:
                             self.insert = self.insert[:-1]
@@ -263,7 +233,7 @@ class Menu:
             pygame.draw.rect(self.surface, COLOR_RECT, [250, 400, 100, 30])
             self.surface.blit(self.text_add, (260, 407))
             pygame.draw.rect(self.surface, COLOR_RECT, [250, 500, 100, 30])
-            self.surface.blit(self.text_exit, (280, 507))
+            self.surface.blit(self.text_back, (280, 507))
 
             if self.active:
                 self.surface.blit(self.text_entry, (355, 407))
@@ -271,7 +241,78 @@ class Menu:
 
             pygame.display.update()
 
-# ----------------------------------------------------------------------------------------------------
+
+class Leader:
+
+    surface = pygame.display.set_mode((605, 700), pygame.SRCALPHA)
+
+    bg_image = pygame.image.load('resources/backgrounds/leader_background.jpeg')
+    bg_image = pygame.transform.scale(bg_image, (605, 700))
+
+    small_font = pygame.font.SysFont('Corbel', 25)
+
+    text_back = small_font.render('Back', True, COLOR_TEXT)
+
+    COLOR_DARK_PINK = (231, 84, 128)
+    COLOR_GREEN = (84, 232, 187)
+
+    all_scores = {}
+    leaders = {}
+    leaders_arr = []
+
+    def __init__(self, username, record):
+        self.username = username
+        self.record = record
+
+        self.set_all_scores()
+        count = 0
+        for s in sorted(self.all_scores, key=self.all_scores.get, reverse=True):
+            if count == 5:
+                break
+            self.leaders[s] = self.all_scores[s]
+            self.leaders_arr.append(s)
+            count += 1
+
+        self.loop()
+
+    def set_all_scores(self):
+        dir = "scores"
+        for f in os.listdir(dir):
+            f_name = os.path.join(dir, f)
+            if os.path.isfile(f_name):
+                file = open(f_name, "r")
+                user = f_name.split("_score.txt")[0]
+                user = user[7:]
+                self.all_scores[user] = int(file.readlines()[0])
+
+    def loop(self):
+
+        while 1:
+            mouse = pygame.mouse.get_pos()
+
+            for event in pygame.event.get():
+                if event.type == QUIT:
+                    exit_game()
+                if event.type == MOUSEBUTTONDOWN:
+                    if 250 <= mouse[0] <= 350 and 635 <= mouse[1] <= 665:
+                        Menu(self.username)
+
+            self.surface.blit(self.bg_image, (0, 0))
+
+            rect_y = 200
+            for user in sorted(self.leaders, key=self.leaders.get, reverse=True):
+                pygame.draw.rect(self.surface, self.COLOR_DARK_PINK, [250, rect_y, 100, 30])
+                text = self.small_font.render(user + ": " + str(self.leaders[user]), True, COLOR_WHITE)
+                self.surface.blit(text, (270, rect_y + 7))
+                rect_y += 50
+
+            pygame.draw.rect(self.surface, self.COLOR_GREEN, [200, rect_y + 100, 200, 30])
+            text = self.small_font.render("YOUR SCORE: " + str(self.record), True, COLOR_WHITE)
+            self.surface.blit(text, (220, rect_y + 107))
+            pygame.draw.rect(self.surface, COLOR_RECT, [250, 635, 100, 30])
+            self.surface.blit(self.text_back, (280, 642))
+
+            pygame.display.flip()
 
 
 class Add:
@@ -286,8 +327,9 @@ class Add:
     text_back = small_font.render('Back', True, COLOR_TEXT)
     text_save = small_font.render('Save', True, COLOR_TEXT)
 
-    def __init__(self, difficulty):
+    def __init__(self, username, difficulty):
         self.difficulty = int(difficulty)
+        self.username = username
 
         self.arr = []
         for i in range(self.difficulty):
@@ -314,10 +356,10 @@ class Add:
                     exit_game()
                 if event.type == MOUSEBUTTONDOWN:
                     if 150 <= mouse[0] <= 250 and 635 <= mouse[1] <= 665:
-                        Menu()
+                        Menu(self.username)
                     elif 350 <= mouse[0] <= 450 and 635 <= mouse[1] <= 665:
                         self.save_data()
-                        Menu()
+                        Menu(self.username)
                     elif 100 <= mouse[0] <= 600 and 100 <= mouse[1] <= 600:
                         if self.field.handle_mouse(mouse, True):
                             self.horizontal.handle_add(self.field.get_data())
@@ -389,7 +431,9 @@ class Instructions:
     image_back = pygame.image.load('resources/instructions/back.jpeg')
     image_back = pygame.transform.scale(image_back, (70, 20))
 
-    def __init__(self):
+    def __init__(self, username):
+        self.username = username
+
         self.loop()
 
     def loop(self):
@@ -402,7 +446,7 @@ class Instructions:
                     exit_game()
                 if event.type == MOUSEBUTTONDOWN:
                     if 250 <= mouse[0] <= 350 and 635 <= mouse[1] <= 665:
-                        Menu()
+                        Menu(self.username)
 
             self.surface.blit(self.bg_image, (0, 0))
             self.surface.blit(self.text_heading, (50, 20))
@@ -450,7 +494,8 @@ class Difficulties:
 
     text_entry = small_font.render("", True, COLOR_RECT)
 
-    def __init__(self):
+    def __init__(self, username):
+        self.username = username
         self.insert = ""
         self.active = False
         self.loop()
@@ -465,13 +510,13 @@ class Difficulties:
                     exit_game()
                 if event.type == MOUSEBUTTONDOWN:
                     if 250 <= mouse[0] <= 350 and 635 <= mouse[1] <= 665:
-                        Menu()
+                        Menu(self.username)
                     elif 250 <= mouse[0] <= 350 and 200 <= mouse[1] <= 230:
-                        Levels(6)
+                        Levels(self.username, 6)
                     elif 225 <= mouse[0] <= 375 and 300 <= mouse[1] <= 330:
-                        Levels(8)
+                        Levels(self.username, 8)
                     elif 250 <= mouse[0] <= 350 and 400 <= mouse[1] <= 430:
-                        Levels(10)
+                        Levels(self.username, 10)
                     elif 250 <= mouse[0] <= 350 and 500 <= mouse[1] <= 530:
                         self.active = True
                         self.text_other = self.small_font.render("Difficulty:", True, COLOR_TEXT)
@@ -481,7 +526,7 @@ class Difficulties:
                         if event.key == pygame.K_RETURN:
                             if self.insert.isdigit():
                                 if int(self.insert) <= 25:
-                                    Levels(int(self.insert))
+                                    Levels(self.username, int(self.insert))
                             self.insert = ''
                         elif event.key == pygame.K_BACKSPACE:
                             self.insert = self.insert[:-1]
@@ -520,7 +565,8 @@ class Levels:
     text_back = small_font.render('Back', True, COLOR_TEXT)
     text_next = small_font.render('Next', True, COLOR_TEXT)
 
-    def __init__(self, difficulty):
+    def __init__(self, username, difficulty):
+        self.username = username
         self.difficulty = difficulty
         self.loop()
 
@@ -547,7 +593,7 @@ class Levels:
                     row.append(int(rows[i][j]))
                 arr.append(row)
 
-            Game(self.difficulty, arr, map * 8 + level)
+            Game(self.username, self.difficulty, arr, map * 8 + level)
 
     def loop(self):
         map = 0
@@ -561,7 +607,7 @@ class Levels:
                 if event.type == MOUSEBUTTONDOWN:
                     if 150 <= mouse[0] <= 250 and 635 <= mouse[1] <= 665:
                         if map == 0:
-                            Difficulties()
+                            Difficulties(self.username)
                         else:
                             map -= 1
                     elif 500 <= mouse[0] <= 600 and 635 <= mouse[1] <= 665:
@@ -648,14 +694,16 @@ class Game:
     file_data = {}
     old_data = []
 
-    def __init__(self, difficulty, arr, level):
+    def __init__(self, username, difficulty, arr, level):
+        self.username = username
         self.difficulty = difficulty
         self.level = level
         self.arr = arr
 
         file_line = ""
-        if os.path.isfile("data/data.txt"):
-            data = open("data/data.txt", "r")
+        filename = "data/" + self.username + ".txt"
+        if os.path.isfile(filename):
+            data = open(filename, "r")
 
             for line in data.readlines():
                 line_arr = line.split(":")
@@ -666,11 +714,9 @@ class Game:
                 value = value[1: len(value)]
                 self.file_data[key] = value
 
-            file = open("data/data.txt", "w")
-            everything = ""
+            file = open(filename, "w")
             for key in self.file_data:
                 file.write(key + ":" + self.file_data[key])
-                everything += self.file_data[key]
             file.close()
 
             data.close()
@@ -709,7 +755,7 @@ class Game:
                     exit_game()
                 if event.type == MOUSEBUTTONDOWN:
                     if 250 <= mouse[0] <= 350 and 635 <= mouse[1] <= 665:
-                        Levels(self.difficulty)
+                        Levels(self.username, self.difficulty)
 
             if won:
                 txt = self.big_font.render('You Won !!!', True, (255, 0, 0))
@@ -745,12 +791,12 @@ class Game:
 
             for event in pygame.event.get():
                 if event.type == QUIT:
-                    write_data(self.get_data())
+                    self.write_data(self.get_data())
                     exit_game()
                 if event.type == MOUSEBUTTONDOWN:
                     if 150 <= mouse[0] <= 250 and 635 <= mouse[1] <= 665:
-                        write_data(self.get_data())
-                        Levels(self.difficulty)
+                        self.write_data(self.get_data())
+                        Levels(self.username, self.difficulty)
                     elif 100 <= mouse[0] <= 600 and 100 <= mouse[1] <= 600:
                         handle = self.field.handle_mouse(mouse, fill)
                         if handle == 1:
@@ -786,7 +832,14 @@ class Game:
 
         data = self.get_data()
         data = data.rstrip(data[-1])
-        write_data(data + ":" + str(won) + "\n")
+        data += ":" + str(won) + "\n"
+
+        data_arr = data.split(":")
+        key = data_arr[0] + ":" + data_arr[1]
+        if key in self.file_data:
+            del self.file_data[key]
+
+        self.write_data(data)
         self.end(won)
 
     def get_data(self):
@@ -800,6 +853,37 @@ class Game:
         result = result.rstrip(result[-1])
         result += ":" + str(self.score.get_score()) + ":" + str(self.score.get_lives()) + "\n"
         return result
+
+    def write_data(self, data=""):
+        data_arr = data.split(":")
+        filename = "data/" + self.username + ".txt"
+        if len(data_arr) >= 2:
+            read_file = open(filename, "r")
+            read_file_lines = read_file.readlines()
+            write_file = open("data1.txt", "w")
+
+            for line in read_file_lines:
+                line_arr = line.split(":")
+                if line_arr[0] != data_arr[0] or line_arr[1] != data_arr[1]:
+                    write_file.write(line)
+
+            read_file.close()
+            os.remove(filename)
+            write_file.close()
+            os.rename("data1.txt", filename)
+        if len(data_arr) == 6:
+            if data_arr[5] == "True\n":
+                f_name = "scores/" + self.username + "_score.txt"
+                read_file = open(f_name, "r")
+                score = int(read_file.readlines()[0])
+                score += int(data_arr[3]) + 20 * int(data_arr[4])
+                file = open(f_name, "w")
+                file.write(str(score))
+                file.close()
+        else:
+            file = open(filename, "a")
+            file.write(data)
+            file.close()
 
 
 class Field:
