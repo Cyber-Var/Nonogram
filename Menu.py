@@ -3,18 +3,23 @@ from pygame.locals import *
 import sys
 from math import trunc
 import os.path
+import json
 
 
 COLOR_WHITE = (255, 255, 255)
 COLOR_TEXT = (250, 250, 250)
 COLOR_RECT = (100, 100, 100)
 COLOR_BLACK = (0, 0, 0)
+COLOR_RED = (255, 0, 0)
+
+USERNAME = ""
+PASSWORD = ""
 
 
 def write_data(data=""):
     data_arr = data.split(":")
     if len(data_arr) >= 2:
-        read_file = open("data.txt", "r")
+        read_file = open("data/data.txt", "r")
         read_file_lines = read_file.readlines()
         write_file = open("data1.txt", "w")
 
@@ -24,16 +29,16 @@ def write_data(data=""):
                 write_file.write(line)
 
         read_file.close()
-        os.remove("data.txt")
+        os.remove("data/data.txt")
         write_file.close()
-        os.rename("data1.txt", "data.txt")
+        os.rename("data1.txt", "data/data.txt")
     if len(data_arr) == 6:
         if data_arr[5] == "True\n":
-            file = open("scores.txt", "a")
+            file = open("data/scores.txt", "a")
             file.write(data_arr[3] + ":" + data_arr[4] + "\n")
             file.close()
     else:
-        file = open("data.txt", "a")
+        file = open("data/data.txt", "a")
         file.write(data)
         file.close()
 
@@ -41,6 +46,143 @@ def write_data(data=""):
 def exit_game():
     pygame.quit()
     sys.exit()
+
+
+class Login:
+
+    pygame.init()
+    surface = pygame.display.set_mode((605, 700))
+
+    bg_image = pygame.image.load('resources/backgrounds/login_background.jpeg')
+    bg_image = pygame.transform.scale(bg_image, (605, 700))
+
+    small_font = pygame.font.SysFont('Corbel', 25)
+
+    text_signin = small_font.render('Sign in', True, COLOR_TEXT)
+    text_register = small_font.render('Register', True, COLOR_TEXT)
+    text_exit = small_font.render('Exit', True, COLOR_TEXT)
+    text_username = small_font.render('Username:', True, COLOR_TEXT)
+    text_password = small_font.render('Password:', True, COLOR_TEXT)
+
+    text_entry_username = small_font.render("", True, COLOR_RECT)
+    text_entry_password = small_font.render("", True, COLOR_RECT)
+
+    filename = "logins.txt"
+    dict = {}
+
+    def __init__(self):
+        self.username = ""
+        self.password = ""
+        self.active_username = False
+        self.active_password = False
+        self.invalid = False
+
+        self.set_dict()
+        self.loop()
+
+    def set_dict(self):
+        if os.path.isfile(self.filename):
+            file = open(self.filename, "r")
+            lines = file.readlines()
+            js = lines[0]
+            self.dict = json.loads(js)
+        return self.dict
+
+    def sign_in(self):
+        if self.username in self.dict:
+            if self.dict[self.username] == self.password:
+                USERNAME = self.username
+                PASSWORD = self.password
+                Menu()
+        else:
+            self.invalid = True
+            self.username = ""
+            self.password = ""
+            self.text_entry_username = self.small_font.render("Invalid", True, COLOR_RED)
+            self.text_entry_password = self.small_font.render("Invalid", True, COLOR_RED)
+
+    def register(self):
+        USERNAME = self.username
+        PASSWORD = self.password
+        if self.username in self.dict:
+            self.invalid = True
+            self.username = ""
+            self.password = ""
+            self.text_entry_username = self.small_font.render("Invalid", True, COLOR_RED)
+        else:
+            self.dict[self.username] = self.password
+            file = open(self.filename, "w")
+            js = json.dumps(self.dict)
+            file.write(js)
+            file.close()
+            Menu()
+
+    def loop(self):
+
+        while 1:
+            mouse = pygame.mouse.get_pos()
+
+            for event in pygame.event.get():
+                if event.type == QUIT:
+                    exit_game()
+                if event.type == MOUSEBUTTONDOWN:
+                    if self.invalid:
+                        self.text_entry_username = self.small_font.render("", True, COLOR_RECT)
+                        self.text_entry_password = self.small_font.render("", True, COLOR_RECT)
+                        self.invalid = False
+                    if 250 <= mouse[0] <= 350 and 600 <= mouse[1] <= 630:
+                        exit_game()
+                    elif 150 <= mouse[0] <= 250 and 450 <= mouse[1] <= 480:
+                        self.register()
+                    elif 300 <= mouse[0] <= 400 and 450 <= mouse[1] <= 480:
+                        self.sign_in()
+                    if 300 <= mouse[0] <= 400 and 150 <= mouse[1] <= 180:
+                        self.active_username = True
+                    else:
+                        self.active_username = False
+                    if 300 <= mouse[0] <= 400 and 300 <= mouse[1] <= 330:
+                        self.active_password = True
+                    else:
+                        self.active_password = False
+                if event.type == pygame.KEYDOWN:
+                    if self.active_username:
+                        if event.key == pygame.K_RETURN:
+                            print(self.username)
+                        elif event.key == pygame.K_BACKSPACE:
+                            self.username = self.username[:-1]
+                        else:
+                            self.username += event.unicode
+                        self.text_entry_username = self.small_font.render(self.username, True, COLOR_RECT)
+                    elif self.active_password:
+                        if event.key == pygame.K_RETURN:
+                            print(self.password)
+                        elif event.key == pygame.K_BACKSPACE:
+                            self.password = self.password[:-1]
+                        else:
+                            self.password += event.unicode
+                        self.text_entry_password = self.small_font.render(self.password, True, COLOR_RECT)
+
+            self.surface.blit(self.bg_image, (0, 0))
+
+            pygame.draw.rect(self.surface, COLOR_RECT, [200, 150, 100, 30])
+            self.surface.blit(self.text_username, (210, 157))
+            pygame.draw.rect(self.surface, COLOR_RECT, [300, 150, 100, 30], 2)
+            self.surface.blit(self.text_entry_username, (305, 157))
+
+            pygame.draw.rect(self.surface, COLOR_RECT, [200, 300, 100, 30])
+            self.surface.blit(self.text_password, (210, 307))
+            pygame.draw.rect(self.surface, COLOR_RECT, [300, 300, 100, 30], 2)
+            self.surface.blit(self.text_entry_password, (305, 307))
+
+            pygame.draw.rect(self.surface, COLOR_RECT, [150, 450, 100, 30])
+            self.surface.blit(self.text_register, (165, 457))
+            pygame.draw.rect(self.surface, COLOR_RECT, [300, 450, 100, 30])
+            self.surface.blit(self.text_signin, (325, 457))
+
+            pygame.draw.rect(self.surface, COLOR_RECT, [250, 600, 100, 30])
+            self.surface.blit(self.text_exit, (280, 607))
+
+            pygame.display.update()
 
 
 class Menu:
@@ -70,8 +212,8 @@ class Menu:
         self.loop()
 
     def count_record(self):
-        if os.path.isfile("scores.txt"):
-            file = open("scores.txt", "r")
+        if os.path.isfile("data/scores.txt"):
+            file = open("data/scores.txt", "r")
             file_lines = file.readlines()
             for line in file_lines:
                 line_arr = line.split(":")
@@ -171,18 +313,18 @@ class Add:
                 if event.type == QUIT:
                     exit_game()
                 if event.type == MOUSEBUTTONDOWN:
-                    if 100 <= mouse[0] <= 600 and 100 <= mouse[1] <= 600:
+                    if 150 <= mouse[0] <= 250 and 635 <= mouse[1] <= 665:
+                        Menu()
+                    elif 350 <= mouse[0] <= 450 and 635 <= mouse[1] <= 665:
+                        self.save_data()
+                        Menu()
+                    elif 100 <= mouse[0] <= 600 and 100 <= mouse[1] <= 600:
                         if self.field.handle_mouse(mouse, True):
                             self.horizontal.handle_add(self.field.get_data())
                             self.vertical.handle_add(self.field.get_data())
                         else:
                             self.horizontal.handle_add(self.field.get_data())
                             self.vertical.handle_add(self.field.get_data())
-                    elif 150 <= mouse[0] <= 250 and 635 <= mouse[1] <= 665:
-                        Menu()
-                    elif 350 <= mouse[0] <= 450 and 635 <= mouse[1] <= 665:
-                        self.save_data()
-                        Menu()
 
             self.surface.blit(self.bg_image, (0, 0))
             pygame.draw.rect(self.surface, COLOR_RECT, [150, 635, 100, 30])
@@ -300,12 +442,17 @@ class Difficulties:
 
     small_font = pygame.font.SysFont('Corbel', 25)
 
-    text_easy = small_font.render('Easy', True, COLOR_TEXT)
-    text_medium = small_font.render('Medium', True, COLOR_TEXT)
-    text_hard = small_font.render('Hard', True, COLOR_TEXT)
+    text_easy = small_font.render('Easy (6)', True, COLOR_TEXT)
+    text_medium = small_font.render('Medium (8)', True, COLOR_TEXT)
+    text_hard = small_font.render('Hard (10)', True, COLOR_TEXT)
+    text_other = small_font.render('Other', True, COLOR_TEXT)
     text_back = small_font.render('Back', True, COLOR_TEXT)
 
+    text_entry = small_font.render("", True, COLOR_RECT)
+
     def __init__(self):
+        self.insert = ""
+        self.active = False
         self.loop()
 
     def loop(self):
@@ -321,40 +468,44 @@ class Difficulties:
                         Menu()
                     elif 250 <= mouse[0] <= 350 and 200 <= mouse[1] <= 230:
                         Levels(6)
-                    elif 225 <= mouse[0] <= 375 and 350 <= mouse[1] <= 380:
+                    elif 225 <= mouse[0] <= 375 and 300 <= mouse[1] <= 330:
                         Levels(8)
-                    elif 250 <= mouse[0] <= 350 and 500 <= mouse[1] <= 530:
+                    elif 250 <= mouse[0] <= 350 and 400 <= mouse[1] <= 430:
                         Levels(10)
+                    elif 250 <= mouse[0] <= 350 and 500 <= mouse[1] <= 530:
+                        self.active = True
+                        self.text_other = self.small_font.render("Difficulty:", True, COLOR_TEXT)
+                        pygame.draw.rect(self.surface, COLOR_RECT, [350, 500, 50, 30], 2)
+                if event.type == pygame.KEYDOWN:
+                    if self.active:
+                        if event.key == pygame.K_RETURN:
+                            if self.insert.isdigit():
+                                if int(self.insert) <= 25:
+                                    Levels(int(self.insert))
+                            self.insert = ''
+                        elif event.key == pygame.K_BACKSPACE:
+                            self.insert = self.insert[:-1]
+                        else:
+                            self.insert += event.unicode
+                        self.text_entry = self.small_font.render(self.insert, True, COLOR_RECT)
 
             self.surface.blit(self.bg_image, (0, 0))
             pygame.draw.rect(self.surface, COLOR_RECT, [250, 200, 100, 30])
-            self.surface.blit(self.text_easy, (280, 207))
-            pygame.draw.rect(self.surface, COLOR_RECT, [250, 350, 100, 30])
-            self.surface.blit(self.text_medium, (265, 357))
+            self.surface.blit(self.text_easy, (270, 207))
+            pygame.draw.rect(self.surface, COLOR_RECT, [250, 300, 100, 30])
+            self.surface.blit(self.text_medium, (255, 307))
+            pygame.draw.rect(self.surface, COLOR_RECT, [250, 400, 100, 30])
+            self.surface.blit(self.text_hard, (260, 407))
             pygame.draw.rect(self.surface, COLOR_RECT, [250, 500, 100, 30])
-            self.surface.blit(self.text_hard, (280, 507))
+            self.surface.blit(self.text_other, (260, 507))
             pygame.draw.rect(self.surface, COLOR_RECT, [250, 635, 100, 30])
             self.surface.blit(self.text_back, (280, 642))
 
+            if self.active:
+                self.surface.blit(self.text_entry, (355, 507))
+                pygame.draw.rect(self.surface, COLOR_RECT, [350, 500, 50, 30], 2)
+
             pygame.display.flip()
-
-
-def get_array(difficulty, level):
-    arr = []
-
-    filename = "arrays/" + str(difficulty) + ".txt"
-    file = open(filename, 'r')
-    lines = file.readlines()
-    line = lines[level]
-    rows = line.split(" ")
-
-    for i in range(len(rows)):
-        row = []
-        rows[i] = rows[i].replace("\n", "")
-        for j in range(len(rows[i])):
-            row.append(int(rows[i][j]))
-        arr.append(row)
-    return arr
 
 
 class Levels:
@@ -366,13 +517,41 @@ class Levels:
 
     small_font = pygame.font.SysFont('Corbel', 25)
 
-    text = small_font.render('Back', True, COLOR_TEXT)
+    text_back = small_font.render('Back', True, COLOR_TEXT)
+    text_next = small_font.render('Next', True, COLOR_TEXT)
 
     def __init__(self, difficulty):
         self.difficulty = difficulty
         self.loop()
 
+    def check_exists(self, level):
+        line = ""
+        filename = "arrays/" + str(self.difficulty) + ".txt"
+        if os.path.isfile(filename):
+            file = open(filename, 'r')
+            lines = file.readlines()
+            if len(lines) >= level + 1:
+                line = lines[level]
+        return line
+
+    def start_game(self, map, level):
+        line = self.check_exists(map * 8 + level)
+        if line != "":
+            arr = []
+            rows = line.split(" ")
+
+            for i in range(len(rows)):
+                row = []
+                rows[i] = rows[i].replace("\n", "")
+                for j in range(len(rows[i])):
+                    row.append(int(rows[i][j]))
+                arr.append(row)
+
+            Game(self.difficulty, arr, map * 8 + level)
+
     def loop(self):
+        map = 0
+
         while 1:
             mouse = pygame.mouse.get_pos()
 
@@ -381,52 +560,75 @@ class Levels:
                     exit_game()
                 if event.type == MOUSEBUTTONDOWN:
                     if 150 <= mouse[0] <= 250 and 635 <= mouse[1] <= 665:
-                        Difficulties()
+                        if map == 0:
+                            Difficulties()
+                        else:
+                            map -= 1
+                    elif 500 <= mouse[0] <= 600 and 635 <= mouse[1] <= 665:
+                        map += 1
                     elif 80 <= mouse[0] <= 150 and 50 <= mouse[1] <= 140:
                         # tunnel
-                        Game(self.difficulty, get_array(self.difficulty, 0), 0)
+                        self.start_game(map, 0)
                     elif 530 <= mouse[0] <= 580 and 120 <= mouse[1] <= 170:
                         # rocks
-                        Game(self.difficulty, get_array(self.difficulty, 1), 1)
+                        self.start_game(map, 1)
                     elif 5 <= mouse[0] <= 85 and 300 <= mouse[1] <= 415:
                         # house
-                        Game(self.difficulty, get_array(self.difficulty, 2), 2)
+                        self.start_game(map, 2)
                     elif 185 <= mouse[0] <= 270 and 200 <= mouse[1] <= 310:
                         # tree
-                        Game(self.difficulty, get_array(self.difficulty, 3), 3)
+                        self.start_game(map, 3)
                     elif 440 <= mouse[0] <= 495 and 315 <= mouse[1] <= 385:
                         # crystal
-                        Game(self.difficulty, get_array(self.difficulty, 4), 4)
+                        self.start_game(map, 4)
                     elif 230 <= mouse[0] <= 290 and 405 <= mouse[1] <= 525:
                         # statue
-                        Game(self.difficulty, get_array(self.difficulty, 5), 5)
+                        self.start_game(map, 5)
                     elif 525 <= mouse[0] <= 605 and 440 <= mouse[1] <= 540:
                         # fisher
-                        Game(self.difficulty, get_array(self.difficulty, 6), 6)
+                        self.start_game(map, 6)
                     elif 375 <= mouse[0] <= 465 and 590 <= mouse[1] <= 665:
                         # car
-                        Game(self.difficulty, get_array(self.difficulty, 7), 7)
+                        self.start_game(map, 7)
 
             self.surface.blit(self.bg_image, (0, 0))
             # tunnel:
-            pygame.draw.rect(self.surface, COLOR_WHITE, [80, 50, 70, 90], 1)
+            if self.check_exists(map * 8) != "":
+                pygame.draw.rect(self.surface, COLOR_WHITE, [80, 50, 70, 90], 1)
+                self.surface.blit(self.small_font.render(str(map * 8), True, COLOR_BLACK), (85, 55))
             # rocks:
-            pygame.draw.rect(self.surface, COLOR_WHITE, [530, 120, 50, 50], 1)
+            if self.check_exists(map * 8 + 1) != "":
+                pygame.draw.rect(self.surface, COLOR_WHITE, [530, 120, 50, 50], 1)
+                self.surface.blit(self.small_font.render(str(map * 8 + 1), True, COLOR_BLACK), (535, 125))
             # house:
-            pygame.draw.rect(self.surface, COLOR_WHITE, [5, 300, 80, 115], 1)
+            if self.check_exists(map * 8 + 2) != "":
+                pygame.draw.rect(self.surface, COLOR_WHITE, [5, 300, 80, 115], 1)
+                self.surface.blit(self.small_font.render(str(map * 8 + 2), True, COLOR_BLACK), (10, 305))
             # tree:
-            pygame.draw.rect(self.surface, COLOR_WHITE, [185, 200, 85, 110], 1)
+            if self.check_exists(map * 8 + 3) != "":
+                pygame.draw.rect(self.surface, COLOR_WHITE, [185, 200, 85, 110], 1)
+                self.surface.blit(self.small_font.render(str(map * 8 + 3), True, COLOR_BLACK), (190, 205))
             # crystal:
-            pygame.draw.rect(self.surface, COLOR_WHITE, [440, 315, 55, 70], 1)
+            if self.check_exists(map * 8 + 4) != "":
+                pygame.draw.rect(self.surface, COLOR_WHITE, [440, 315, 55, 70], 1)
+                self.surface.blit(self.small_font.render(str(map * 8 + 4), True, COLOR_BLACK), (445, 320))
             # statue:
-            pygame.draw.rect(self.surface, COLOR_WHITE, [230, 405, 60, 120], 1)
+            if self.check_exists(map * 8 + 5) != "":
+                pygame.draw.rect(self.surface, COLOR_WHITE, [230, 405, 60, 120], 1)
+                self.surface.blit(self.small_font.render(str(map * 8 + 5), True, COLOR_BLACK), (235, 410))
             # fisher
-            pygame.draw.rect(self.surface, COLOR_WHITE, [525, 440, 80, 100], 1)
+            if self.check_exists(map * 8 + 6) != "":
+                pygame.draw.rect(self.surface, COLOR_WHITE, [525, 440, 80, 100], 1)
+                self.surface.blit(self.small_font.render(str(map * 8 + 6), True, COLOR_BLACK), (530, 445))
             # car:
-            pygame.draw.rect(self.surface, COLOR_WHITE, [375, 590, 90, 75], 1)
+            if self.check_exists(map * 8 + 7) != "":
+                pygame.draw.rect(self.surface, COLOR_WHITE, [375, 590, 90, 75], 1)
+                self.surface.blit(self.small_font.render(str(map * 8 + 7), True, COLOR_BLACK), (380, 595))
 
             pygame.draw.rect(self.surface, COLOR_RECT, [150, 635, 100, 30])
-            self.surface.blit(self.text, (180, 642))
+            self.surface.blit(self.text_back, (180, 642))
+            pygame.draw.rect(self.surface, COLOR_RECT, [500, 635, 100, 30])
+            self.surface.blit(self.text_next, (530, 642))
 
             pygame.display.update()
 
@@ -452,8 +654,8 @@ class Game:
         self.arr = arr
 
         file_line = ""
-        if os.path.isfile("data.txt"):
-            data = open("data.txt", "r")
+        if os.path.isfile("data/data.txt"):
+            data = open("data/data.txt", "r")
 
             for line in data.readlines():
                 line_arr = line.split(":")
@@ -464,7 +666,7 @@ class Game:
                 value = value[1: len(value)]
                 self.file_data[key] = value
 
-            file = open("data.txt", "w")
+            file = open("data/data.txt", "w")
             everything = ""
             for key in self.file_data:
                 file.write(key + ":" + self.file_data[key])
@@ -497,14 +699,7 @@ class Game:
     def end(self, won):
         self.surface.blit(self.bg_image, (0, 0))
 
-        image_name = 'resources/'
-        if self.difficulty == 6:
-            image_name += 'easy'
-        elif self.difficulty == 8:
-            image_name += 'medium'
-        else:
-            image_name += 'hard'
-        image_name += '/' + str(self.level) + '.jpeg'
+        image_name = 'resources/' + str(self.difficulty) + '/' + str(self.level) + '.jpeg'
 
         while 1:
             mouse = pygame.mouse.get_pos()
@@ -514,17 +709,25 @@ class Game:
                     exit_game()
                 if event.type == MOUSEBUTTONDOWN:
                     if 250 <= mouse[0] <= 350 and 635 <= mouse[1] <= 665:
-                        Menu()
+                        Levels(self.difficulty)
 
             if won:
                 txt = self.big_font.render('You Won !!!', True, (255, 0, 0))
                 self.surface.blit(txt, (70, 15))
-                image = pygame.image.load(image_name)
-                image = pygame.transform.scale(image, (500, 500))
-                self.surface.blit(image, (50, 100))
+                if os.path.isfile(image_name):
+                    image = pygame.image.load(image_name)
+                    image = pygame.transform.scale(image, (500, 500))
+                    self.surface.blit(image, (50, 100))
+                else:
+                    image = pygame.image.load('resources/winner.jpeg')
+                    image = pygame.transform.scale(image, (500, 400))
+                    self.surface.blit(image, (50, 150))
             else:
                 txt = self.big_font.render('You Lost :(', True, (0, 0, 0))
-                self.surface.blit(txt, (70, 300))
+                self.surface.blit(txt, (70, 15))
+                image = pygame.image.load('resources/loser.jpg')
+                image = pygame.transform.scale(image, (500, 500))
+                self.surface.blit(image, (50, 100))
 
             pygame.draw.rect(self.surface, COLOR_RECT, [250, 635, 100, 30])
             self.surface.blit(self.text, (280, 642))
@@ -547,7 +750,7 @@ class Game:
                 if event.type == MOUSEBUTTONDOWN:
                     if 150 <= mouse[0] <= 250 and 635 <= mouse[1] <= 665:
                         write_data(self.get_data())
-                        Menu()
+                        Levels(self.difficulty)
                     elif 100 <= mouse[0] <= 600 and 100 <= mouse[1] <= 600:
                         handle = self.field.handle_mouse(mouse, fill)
                         if handle == 1:
@@ -969,4 +1172,4 @@ class Square:
         self.crossed = 1
 
 
-Menu()
+Login()
